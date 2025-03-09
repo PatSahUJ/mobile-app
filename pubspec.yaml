@@ -1,0 +1,39 @@
+name: senior_project
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.4.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.1
+  cloud_firestore: ^5.6.5
+  intl: ^0.20.2
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - asset/images/piggybank.png
+    - asset/images/piggybankrotate.png
+    - asset/icons/loupe.png
+    - asset/icons/setting.png
+    - asset/images/icon_bar_dash.png
+
+  fonts:
+    - family: Inter  # Replace with your font family name
+      fonts:
+        - asset: asset/font/Inter-Regular.ttf
+        - asset: asset/font/Inter-Light.ttf
+        - asset: asset/font/Inter-ExtraLight.ttf
+    - family: RobotoMono
+      fonts:
+        - asset: asset/font/RobotoMono-Regular.ttf
