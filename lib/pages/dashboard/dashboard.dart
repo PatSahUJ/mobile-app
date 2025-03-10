@@ -17,7 +17,6 @@ class Dashboard extends StatelessWidget {
         slivers: [
           SilverAppBarDefault(),
           SilverBoxDash(),
-          // SilverAppBarDash(),
           SilverDateList(),
         ],
       ),

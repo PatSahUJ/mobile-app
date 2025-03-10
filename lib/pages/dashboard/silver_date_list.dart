@@ -15,8 +15,8 @@ class _silverDateListState extends State<SilverDateList> {
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
-      child:
-          Padding(padding: const EdgeInsets.all(10), child: CustomDropdown()),
+      child: Padding(
+          padding: const EdgeInsets.only(left: 7), child: CustomDropdown()),
     );
   }
 }

@@ -2,9 +2,52 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:senior_project/pages/login.dart';
 import 'package:senior_project/style/my_text_style.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 
-class Setting extends StatelessWidget {
+class Setting extends StatefulWidget {
+  // Change to StatefulWidget
   const Setting({super.key});
+
+  @override
+  State<Setting> createState() => _SettingState(); // Create State
+}
+
+class _SettingState extends State<Setting> {
+  // Create State class
+  String? _username;
+  String? _email;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists) {
+          Map<String, dynamic>? userData =
+              userDoc.data() as Map<String, dynamic>?;
+
+          if (userData != null) {
+            setState(() {
+              _username = userData['username'] as String?;
+              _email = user.email;
+            });
+          }
+        }
+      } catch (e) {
+        print('Error fetching user data: $e');
+      }
+    }
+  }
 
   void signUserOut(BuildContext context) async {
     try {
@@ -22,7 +65,6 @@ class Setting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: CustomScrollView(slivers: [
@@ -81,21 +123,39 @@ class Setting extends StatelessWidget {
           child: Column(
             //alignment: Alignment.center,
             children: [
+              SizedBox(height: 50),
+              if (_username != null) // Display username and email
+                Text('Username: $_username',
+                    style: MyTextStyles.size18BlackText),
+              if (_email != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text('Email: $_email',
+                      style: MyTextStyles.size18BlackText),
+                ),
+              SizedBox(height: 50), // Add spacing
               TextButton(
+                  style: TextButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 174, 211, 241),
+                      padding: EdgeInsets.symmetric(horizontal: 20)),
                   onPressed: () {
                     Navigator.pushNamed(context, '/friends');
                   },
                   child: const Text('Friends',
                       style: MyTextStyles.size20BlackText)),
               SizedBox(
-                height: 20,
+                height: 50,
               ),
               TextButton(
+                  style: TextButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      backgroundColor: Theme.of(context).primaryColor),
                   onPressed: () {
                     signUserOut(context);
                   },
                   child: const Text('Sign out',
-                      style: MyTextStyles.size20BlackText))
+                      style: MyTextStyles.size20BlackText)),
             ],
           ),
         )

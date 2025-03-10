@@ -153,7 +153,7 @@ class ExpenseDataProvider with ChangeNotifier {
         'comment': _comment,
         'date': formattedDate,
         'type': _type,
-        'member': _members,
+        'member': _members.length,
       });
 
       if (mounted) {
@@ -168,5 +168,18 @@ class ExpenseDataProvider with ChangeNotifier {
         print('Error saving expense: $e, but widget unmounted');
       }
     }
+  }
+
+  void clearData() {
+    _amount = 0.0;
+    _category = '';
+    _comment = '';
+    _date = null;
+    _type = 'expense';
+    _members.clear();
+    _payersData.clear();
+    _billsAmounts.clear();
+    clearMemberControllers();
+    notifyListeners();
   }
 }

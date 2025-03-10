@@ -18,7 +18,7 @@ class SilverAppBarDefault extends StatelessWidget {
       flexibleSpace: Stack(
         children: [
           Positioned(
-              top: 15,
+              top: MediaQuery.of(context).size.height * 0.02,
               right: 10,
               child: Row(
                 children: [
@@ -41,7 +41,7 @@ class SilverAppBarDefault extends StatelessWidget {
                 ],
               )),
           Positioned.fill(
-              top: 80,
+              top: MediaQuery.of(context).size.height * 0.09,
               child: Container(
                 decoration: const BoxDecoration(
                     color: Colors.white,
@@ -50,7 +50,7 @@ class SilverAppBarDefault extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color: Color.fromARGB(79, 66, 66, 66),
-                        blurRadius: 9,
+                        blurRadius: 5,
                         spreadRadius: -2,
                         offset: Offset(0.0, -12.0),
                       )

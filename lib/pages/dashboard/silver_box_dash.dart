@@ -52,18 +52,21 @@ class SilverBoxDash extends StatelessWidget {
     return SliverAppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
-        expandedHeight: 200,
+        expandedHeight: 210,
         flexibleSpace: Stack(
           children: [
             Padding(
-                padding: const EdgeInsets.all(15),
-                //top: 00,
-                child: Container(
-                  height: 250,
-                  decoration: BoxDecoration(
+              padding: const EdgeInsets.all(15),
+              //top: 00,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Container(
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                          color: Theme.of(context).primaryColor, width: 5),
+                        color: Theme.of(context).primaryColor,
+                        width: 5,
+                      ),
                       boxShadow: const [
                         BoxShadow(
                           color: Color.fromARGB(208, 211, 211, 211),
@@ -71,22 +74,29 @@ class SilverBoxDash extends StatelessWidget {
                           spreadRadius: 6,
                           offset: Offset(0, 0),
                         )
-                      ]),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(27),
-                    child: Container(
-                      color: const Color.fromARGB(255, 255, 255, 255),
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.all(15),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [DateTimePickerPage(), const TotInEx()],
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(27),
+                      child: Container(
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                        child: const Padding(
+                          padding: EdgeInsetsDirectional.all(15),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DateTimePickerPage(),
+                              Expanded(child: TotInEx()),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )),
+                  );
+                },
+              ),
+            ),
           ],
         ));
   }

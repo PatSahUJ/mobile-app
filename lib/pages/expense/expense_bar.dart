@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Import Provider
 import 'package:senior_project/style/my_text_style.dart';
+import 'package:senior_project/pages/expense/expense_data_provider.dart'; // Import your provider
 
 class ExpenseBar extends StatelessWidget {
   const ExpenseBar({super.key});
@@ -7,11 +9,15 @@ class ExpenseBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverAppBar(
       backgroundColor: Colors.white,
-      toolbarHeight: 5,
+      toolbarHeight: MediaQuery.of(context).size.height * 0.01,
       flexibleSpace: Stack(
         children: [
           TextButton(
             onPressed: () {
+              // Clear the data in the ExpenseDataProvider
+              Provider.of<ExpenseDataProvider>(context, listen: false)
+                  .clearData();
+
               Navigator.pushNamed(context, '/dashboard');
             },
             child: Container(

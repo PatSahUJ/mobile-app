@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:senior_project/custom_widget/custom_dashboard/group_transaction_details_dialog.dart';
+import 'package:senior_project/custom_widget/custom_dashboard/transaction_datails_dialog.dart';
 import 'package:senior_project/style/my_text_style.dart';
 
 class LedgerService {
@@ -24,6 +26,7 @@ class LedgerService {
       for (QueryDocumentSnapshot ledgerDoc in snapshot.docs) {
         Map<String, dynamic> ledgerData =
             ledgerDoc.data() as Map<String, dynamic>;
+        ledgerData['ledgerId'] = ledgerDoc.id;
 
         if (ledgerData.containsKey('date')) {
           String dateString = ledgerData['date'];
@@ -218,6 +221,44 @@ class _CustomDropdownState extends State<CustomDropdown> {
                       ),
                     ],
                   ),
+                  onTap: () {
+                    if (ledgerDocument['member'] != null &&
+                        ledgerDocument['member'] > 1) {
+                      // Show GroupTransactionDetailsDialog
+                      showDialog(
+                        context: context,
+                        builder: (context) => GroupTransactionDetailsDialog(
+                          emoji:
+                              categoryEmojis[ledgerDocument['category']] ?? '',
+                          itemName: ledgerDocument['category'],
+                          amount:
+                              '${ledgerDocument['type'] == 'expense' ? '-฿' : '฿'}${ledgerDocument['amount'].toStringAsFixed(2)}',
+                          date: ledgerDocument['date'],
+                          member:
+                              '👤 ${ledgerDocument['member']}', // Show member count
+                          comment: ledgerDocument['comment'] ?? '',
+                          context: context,
+                        ),
+                      );
+                    } else {
+                      // Show TransactionDetailsDialog
+                      showDialog(
+                        context: context,
+                        builder: (context) => TransactionDetailsDialog(
+                          emoji:
+                              categoryEmojis[ledgerDocument['category']] ?? '',
+                          itemName: ledgerDocument['category'],
+                          ledgerId: ledgerDocument['ledgerId'],
+                          amount:
+                              '${ledgerDocument['type'] == 'expense' ? '-฿' : '฿'}${ledgerDocument['amount'].toStringAsFixed(2)}',
+                          date: ledgerDocument['date'],
+                          member: 'Me', // Show 'Me'
+                          comment: ledgerDocument['comment'] ?? '',
+                          context: context,
+                        ),
+                      );
+                    }
+                  },
                 );
               }).toList(),
             );

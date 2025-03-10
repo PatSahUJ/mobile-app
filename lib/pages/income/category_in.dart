@@ -56,6 +56,8 @@ class _CatagoryInState extends State<CatagoryIn> {
 
   @override
   Widget build(BuildContext context) {
+    bool isSaveButtonEnabled =
+        _selectedCategoryId != null && _selectedDate != null;
     List<String> categoryIds = categoryEmojis.keys.toList();
     String displayDate = _selectedDate == null
         ? 'Select Date'
@@ -264,41 +266,52 @@ class _CatagoryInState extends State<CatagoryIn> {
           Container(
             width: 200,
             decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
+                color: isSaveButtonEnabled
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey, // Change color if disabled
                 borderRadius: BorderRadius.circular(15)),
             child: TextButton(
-              onPressed: () async {
-                User? user = FirebaseAuth.instance.currentUser;
-                if (user != null &&
-                    _selectedCategoryId != null &&
-                    _selectedDate != null) {
-                  try {
-                    String dateString = DateFormat('yyyy-MM-dd')
-                        .format(_selectedDate!)
-                        .toString(); // Generate date string
-                    print('Date String before adding: $dateString');
-                    await FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(user.uid)
-                        .collection('ledger')
-                        .add({
-                      'amount': widget.amount,
-                      'category': _selectedCategoryId,
-                      'comment': _commentController.text,
-                      'member': '', // Empty member field
-                      'type': 'income',
-                      'date': dateString,
-                    });
+              onPressed: isSaveButtonEnabled
+                  ? () async {
+                      User? user = FirebaseAuth.instance.currentUser;
+                      if (user != null &&
+                          widget.amount == 0 &&
+                          _selectedCategoryId != null &&
+                          _selectedDate != null) {
+                        try {
+                          String dateString = DateFormat('yyyy-MM-dd')
+                              .format(_selectedDate!)
+                              .toString(); // Generate date string
 
-                    print('Transaction saved successfully!');
-                    Navigator.pop(context);
-                  } catch (e) {
-                    print('Error saving transaction: $e');
-                  }
-                } else {
-                  print('Please select category and date....');
-                }
-              },
+                          print('Date String before adding: $dateString');
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(user.uid)
+                              .collection('ledger')
+                              .add({
+                            'amount': widget.amount,
+                            'category': _selectedCategoryId,
+                            'comment': _commentController.text,
+                            'member': 0, // Empty member field
+                            'type': 'income',
+                            'date': dateString,
+                          });
+
+                          print('Transaction saved successfully!');
+                          Navigator.pushNamed(context, '/dashboard');
+                        } catch (e) {
+                          print('Error saving transaction: $e');
+                        }
+                      }
+                    }
+                  : () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Please select amount or category and date.'),
+                        ),
+                      );
+                    },
               child: const Text('Save', style: MyTextStyles.size20BlackText),
             ),
           ),

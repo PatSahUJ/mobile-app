@@ -85,44 +85,51 @@ class _TotInExState extends State<TotInEx> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Column(
-                  children: [
-                    Text(
-                      '฿${tot.toStringAsFixed(2)}',
-                      style: MyTextStyles.mediumBoldBlackText,
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Total',
-                      style: MyTextStyles.size16GreyText,
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    children: [
+                      Text(
+                        '฿${tot.toStringAsFixed(2)}',
+                        style: MyTextStyles.mediumBoldBlackText,
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Total',
+                        style: MyTextStyles.size16GreyText,
+                      ),
+                    ],
+                  ),
                 ),
-                Column(
-                  children: [
-                    Text(
-                      '฿${totIncome.toStringAsFixed(2)}',
-                      style: MyTextStyles.mediumBoldGreenText,
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Income',
-                      style: MyTextStyles.size16GreyText,
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    children: [
+                      Text(
+                        '฿${totIncome.toStringAsFixed(2)}',
+                        style: MyTextStyles.mediumBoldGreenText,
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Income',
+                        style: MyTextStyles.size16GreyText,
+                      ),
+                    ],
+                  ),
                 ),
-                Column(
-                  children: [
-                    Text(
-                      '฿${totExpense.toStringAsFixed(2)}',
-                      style: MyTextStyles.mediumBoldRedText,
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Expense',
-                      style: MyTextStyles.size16GreyText,
-                    ),
-                  ],
+                Expanded(
+                  // Use Expanded for flexible spacing
+                  child: Column(
+                    children: [
+                      Text(
+                        '฿${totExpense.toStringAsFixed(2)}',
+                        style: MyTextStyles.mediumBoldRedText,
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Expense',
+                        style: MyTextStyles.size16GreyText,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -132,19 +139,16 @@ class _TotInExState extends State<TotInEx> {
               color: Color.fromARGB(255, 109, 109, 109),
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildButton(0, 'Weekly'),
-                SizedBox(
-                  width: 5,
-                ),
+                const SizedBox(width: 5),
                 _buildButton(1, 'Monthly'),
-                SizedBox(
-                  width: 5,
-                ),
+                const SizedBox(width: 5),
                 _buildButton(2, 'Yearly'),
               ],
-            )
+            ),
           ],
         );
       },

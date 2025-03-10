@@ -159,6 +159,7 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:senior_project/pages/expense/expense_data_provider.dart';
 import 'package:senior_project/pages/expense/bill_page.dart';
@@ -183,6 +184,7 @@ class _PayerPageState extends State<PayerPage> {
   Map<String, String> userIdToUsername = {};
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool _isLoading = true; // Add loading state
 
   @override
   void initState() {
@@ -217,12 +219,23 @@ class _PayerPageState extends State<PayerPage> {
         memberSelected[member] = false;
         amountControllers[member] = TextEditingController();
       }
+      _isLoading = false; // Set loading to false after data is fetched
     });
   }
 
   @override
   Widget build(BuildContext context) {
     List<String> members = [myUserId, ...widget.memberIds];
+
+    if (_isLoading) {
+      // Show loading indicator while data is being fetched
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text('Who Paid?')),
       body: Padding(
