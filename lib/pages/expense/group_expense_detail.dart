@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:senior_project/custom_widget/silver_app_bar_default.dart';
 import 'package:senior_project/pages/expense/expense_bar.dart';
-//import 'package:senior_project/pages/expense/silver_app_bar_ex.dart';
 import 'package:senior_project/style/my_text_style.dart';
 
 class GroupExpenseDetail extends StatefulWidget {
@@ -27,7 +26,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
   @override
   void initState() {
     super.initState();
-    whoPaidButtonColor = const Color.fromARGB(255, 225, 156, 139);
+    whoPaidButtonColor = Color.fromARGB(255, 225, 156, 139);
     forWhoButtonColor = const Color.fromARGB(255, 213, 213, 213);
     _whoPaidCheckedValues = List<bool>.filled(widget.memberNames.length, false);
     _forWhoCheckedValues = List<bool>.filled(widget.memberNames.length, false);
@@ -47,7 +46,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
     setState(() {});
     if (state == 'who') {
       forWhoButtonColor = const Color.fromARGB(255, 213, 213, 213);
-      whoPaidButtonColor = const Color.fromARGB(255, 225, 156, 139);
+      whoPaidButtonColor = Color.fromARGB(255, 225, 156, 139);
     } else {
       whoPaidButtonColor = const Color.fromARGB(255, 213, 213, 213);
       forWhoButtonColor = const Color.fromARGB(255, 225, 156, 139);
@@ -57,7 +56,6 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Stack(
         children: [
           CustomScrollView(
@@ -66,7 +64,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
               ExpenseBar(),
               SliverToBoxAdapter(
                 child: Container(
-                  padding: const EdgeInsets.only(top: 10),
+                  padding: EdgeInsets.only(top: 10),
                   color: Colors.white,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -79,7 +77,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                           child: Container(
                             width: 165,
                             alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(vertical: 7),
+                            padding: EdgeInsets.symmetric(vertical: 7),
                             decoration: BoxDecoration(
                                 color: whoPaidButtonColor,
                                 borderRadius: BorderRadius.circular(20),
@@ -91,18 +89,18 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                                     offset: Offset(0, 4),
                                   )
                                 ]),
-                            child: const Text(
+                            child: Text(
                               "Who Paid?",
                               style: MyTextStyles.size18BlackText,
                             ),
                           )),
-                      const SizedBox(
+                      SizedBox(
                         width: 10,
                       ),
                       Container(
                         width: 165,
                         alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(vertical: 7),
+                        padding: EdgeInsets.symmetric(vertical: 7),
                         decoration: BoxDecoration(
                             color: forWhoButtonColor,
                             borderRadius: BorderRadius.circular(20),
@@ -137,7 +135,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Container(
-                              padding: const EdgeInsets.only(left: 20, top: 20),
+                              padding: EdgeInsets.only(left: 20, top: 20),
                               width: 120,
                               child: TextField(
                                 onSubmitted: (text) {
@@ -184,8 +182,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                             }
 
                             return Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
+                                padding: EdgeInsets.symmetric(horizontal: 10),
                                 child: Column(
                                   children: [
                                     Row(
@@ -193,19 +190,20 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                                         Transform.scale(
                                           scale: 1.5,
                                           child: Checkbox(
-                                            fillColor: WidgetStateProperty
+                                            fillColor: MaterialStateProperty
                                                 .resolveWith<Color>(
-                                                    (Set<WidgetState> states) {
+                                                    (Set<MaterialState>
+                                                        states) {
                                               if (states.contains(
-                                                  WidgetState.selected)) {
+                                                  MaterialState.selected)) {
                                                 return Colors
                                                     .white; // The inside of the checkbox when selected
                                               }
                                               return Colors
                                                   .white; // The inside of the checkbox when not selected
                                             }),
-                                            side: const BorderSide(
-                                              color: Color(
+                                            side: BorderSide(
+                                              color: const Color(
                                                   0xffCD5334), // The border color
                                               width: 2.0, // Border thickness
                                             ),
@@ -259,12 +257,12 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                                                   personButton = index;
                                                 });
                                               },
-                                              child: const Text(
+                                              child: Text(
                                                 '🖊️',
                                                 style: TextStyle(fontSize: 18),
                                               ))
                                         else
-                                          const SizedBox(
+                                          SizedBox(
                                             width: 65,
                                           ),
                                       ],
@@ -281,7 +279,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   width: 200,
-                  margin: const EdgeInsets.only(bottom: 20),
+                  margin: EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
                       color: const Color(0xffCD5334),
                       borderRadius: BorderRadius.circular(15)),
@@ -292,7 +290,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                         change_button_color();
                       });
                     },
-                    child: const Text(
+                    child: Text(
                       'Next',
                       style: MyTextStyles.mediumWhiteText,
                     ),
@@ -303,13 +301,13 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   width: 200,
-                  margin: const EdgeInsets.only(bottom: 20),
+                  margin: EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(15)),
                   child: TextButton(
                     onPressed: () {},
-                    child: const Text(
+                    child: Text(
                       'Save',
                       style: MyTextStyles.mediumBlackText,
                     ),

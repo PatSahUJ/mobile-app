@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:senior_project/pages/expense/expense_data_provider.dart';
+import 'package:senior_project/pages/expense/group_ex.dart';
 import 'package:senior_project/style/my_text_style.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 class CategoryEx extends StatefulWidget {
-  final double? amount;
-  const CategoryEx({super.key, required this.amount});
+  const CategoryEx({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -17,11 +19,10 @@ class CategoryEx extends StatefulWidget {
 class _CategoryExState extends State<CategoryEx> {
   Map<String, String> categoryEmojis = {};
   bool _isExpanded = false;
-  DateTime? _selectedDate; // Declare _selectedDate as a state variable
+  DateTime? _selectedDate;
   final TextEditingController _commentController = TextEditingController();
-  String? _selectedCategoryId; // Store the selected category ID
-  final Map<String, Color> _categoryColors =
-      {}; // Store colors for each category
+  String? _selectedCategoryId;
+  final Map<String, Color> _categoryColors = {};
 
   @override
   void initState() {
@@ -133,7 +134,6 @@ class _CategoryExState extends State<CategoryEx> {
                   String emoji = categoryEmojis[categoryId] ?? '';
 
                   return GestureDetector(
-                    // Wrap with GestureDetector
                     onTap: () {
                       setState(() {
                         _selectedCategoryId = categoryId;
@@ -143,6 +143,11 @@ class _CategoryExState extends State<CategoryEx> {
                         _categoryColors[categoryId] =
                             Theme.of(context).primaryColor;
                       });
+                      // Update provider with selected category
+                      Provider.of<ExpenseDataProvider>(context, listen: false)
+                          .updateCategory(categoryId);
+                      //print('Category selected: $categoryId');
+                      //print('Provider Category: ${Provider.of<ExpenseDataProvider>(context, listen: false).category}');
                     },
                     child: Container(
                       child: Container(
@@ -150,16 +155,13 @@ class _CategoryExState extends State<CategoryEx> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 18, vertical: 8),
                         decoration: BoxDecoration(
-                            // Use decoration here
                             color: _categoryColors[categoryId],
-                            borderRadius: BorderRadius.circular(
-                                10) // Set color inside decoration
-                            ),
+                            borderRadius: BorderRadius.circular(10)),
                         child: Column(
                           children: [
                             Text(emoji, style: const TextStyle(fontSize: 30)),
                             Text(categoryId,
-                                style: MyTextStyles.size14lightText),
+                                style: MyTextStyles.size12lightText),
                           ],
                         ),
                       ),
@@ -215,6 +217,11 @@ class _CategoryExState extends State<CategoryEx> {
                         setState(() {
                           _selectedDate = picked;
                         });
+                        // Update provider with selected date
+                        Provider.of<ExpenseDataProvider>(context, listen: false)
+                            .updateDate(picked);
+                        //print('Date selected: $picked');
+                        //print('Provider Date: ${Provider.of<ExpenseDataProvider>(context, listen: false).date}');
                       }
                     },
                     child: Container(
@@ -255,12 +262,20 @@ class _CategoryExState extends State<CategoryEx> {
                         borderSide: BorderSide(color: Colors.grey),
                       ),
                     ),
+                    onChanged: (value) {
+                      // Update provider with comment
+                      Provider.of<ExpenseDataProvider>(context, listen: false)
+                          .updateComment(value);
+                      //print('Comment updated: $value');
+                      //print('Provider Comment: ${Provider.of<ExpenseDataProvider>(context, listen: false).comment}');
+                    },
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 30),
+          //GroupEx()
         ],
       ),
     );

@@ -197,12 +197,10 @@ class _CustomDropdownState extends State<CustomDropdown> {
                                 height: 5,
                               ),
                               Text(
-                                  ledgerDocument['member'] == null ||
-                                          ledgerDocument['member']
-                                              .toString()
-                                              .isEmpty
-                                      ? 'Me'
-                                      : ledgerDocument['member'],
+                                  ledgerDocument['member'] != null &&
+                                          ledgerDocument['member'] > 0
+                                      ? '👤 ${ledgerDocument['member']}' // Display member count
+                                      : 'Me', // Display 'Me' if member is 0
                                   style: MyTextStyles.size14lightText),
                             ],
                           ),

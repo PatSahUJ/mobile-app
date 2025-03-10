@@ -289,16 +289,6 @@ class _CatagoryInState extends State<CatagoryIn> {
                       'type': 'income',
                       'date': dateString,
                     });
-                    //     .doc(dateString)
-                    //     .collection('entries')
-                    //     .add({
-                    //   'amount': widget.amount,
-                    //   'category': _selectedCategoryId,
-                    //   'comment': _commentController.text,
-                    //   'member': '', // Empty member field
-                    //   'type': 'income',
-                    //   'date': dateString,
-                    // });
 
                     print('Transaction saved successfully!');
                     Navigator.pop(context);
@@ -306,7 +296,7 @@ class _CatagoryInState extends State<CatagoryIn> {
                     print('Error saving transaction: $e');
                   }
                 } else {
-                  print('Please select category and date.');
+                  print('Please select category and date....');
                 }
               },
               child: const Text('Save', style: MyTextStyles.size20BlackText),

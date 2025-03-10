@@ -78,9 +78,18 @@ class Setting extends StatelessWidget {
           //actions: <Widget>[],
         ),
         SliverToBoxAdapter(
-          child: Stack(
-            alignment: Alignment.center,
+          child: Column(
+            //alignment: Alignment.center,
             children: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/friends');
+                  },
+                  child: const Text('Friends',
+                      style: MyTextStyles.size20BlackText)),
+              SizedBox(
+                height: 20,
+              ),
               TextButton(
                   onPressed: () {
                     signUserOut(context);

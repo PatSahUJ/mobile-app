@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:senior_project/pages/expense/category_ex.dart';
+import 'package:senior_project/pages/expense/expense_data_provider.dart';
 import 'package:senior_project/style/my_text_style.dart';
+// Import your provider
 
 class SilverExpenseDetail extends StatefulWidget {
   const SilverExpenseDetail({super.key});
@@ -58,6 +61,13 @@ class _SilverExpenseDetailState extends State<SilverExpenseDetail> {
                       setState(() {
                         _amount = double.tryParse(value);
                       });
+                      // Update the provider with the new amount
+                      if (_amount != null) {
+                        Provider.of<ExpenseDataProvider>(context, listen: false)
+                            .updateAmount(_amount!);
+
+                        //print('Provider Amount: ${Provider.of<ExpenseDataProvider>(context, listen: false).amount}');
+                      }
                     },
                   ),
                 ),
@@ -71,12 +81,7 @@ class _SilverExpenseDetailState extends State<SilverExpenseDetail> {
               ],
             ),
           ),
-          CategoryEx(amount: _amount), // Pass _amount here!
-          if (_amount != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text('Amount: $_amount'),
-            ),
+          CategoryEx(),
         ],
       ),
     );

@@ -31,6 +31,12 @@ class MyTextStyles {
     color: const Color(0xffFFC145),
     fontWeight: FontWeight.w300,
   );
+  static const TextStyle size12lightText = TextStyle(
+    fontFamily: 'Inter',
+    fontSize: 12,
+    color: Colors.black,
+    fontWeight: FontWeight.w400,
+  );
   static const TextStyle size14lightText = TextStyle(
     fontFamily: 'Inter',
     fontSize: 14,
