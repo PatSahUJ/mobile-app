@@ -4,49 +4,114 @@ import 'package:flutter/material.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/group_transaction_details_dialog.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/transaction_datails_dialog.dart';
 import 'package:senior_project/style/my_text_style.dart';
+import 'dart:async';
 
 class LedgerService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  Stream<Map<String, List<Map<String, dynamic>>>> getLedgerEntries() {
-    User? user = _auth.currentUser;
+  final _ledgerStreamController =
+      StreamController<Map<String, List<QueryDocumentSnapshot>>>();
+  Stream<Map<String, List<QueryDocumentSnapshot>>> getLedgerEntries() {
+    User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return Stream.value({});
 
     String userId = user.uid;
 
+    return _fetchUserLedger(userId).asyncExpand((userLedger) {
+      return _fetchGroupLedgers(userId).map((groupLedgers) {
+        // Merge user and group ledgers
+        Map<String, List<QueryDocumentSnapshot>> mergedLedgers = {};
+        _mergeLedgers(mergedLedgers, userLedger);
+        _mergeLedgers(mergedLedgers, groupLedgers);
+
+        // Sort by date
+        var sortedKeys = mergedLedgers.keys.toList()
+          ..sort((a, b) => b.compareTo(a));
+        Map<String, List<QueryDocumentSnapshot>> sortedGroupedLedgers = {};
+        for (var key in sortedKeys) {
+          sortedGroupedLedgers[key] = mergedLedgers[key]!;
+        }
+        return sortedGroupedLedgers;
+      });
+    });
+  }
+
+  Stream<Map<String, List<QueryDocumentSnapshot>>> _fetchUserLedger(
+      String userId) {
     return _firestore
         .collection('users')
         .doc(userId)
         .collection('ledger')
         .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) {
-      Map<String, List<Map<String, dynamic>>> groupedLedgers = {};
-      for (QueryDocumentSnapshot ledgerDoc in snapshot.docs) {
-        Map<String, dynamic> ledgerData =
-            ledgerDoc.data() as Map<String, dynamic>;
-        ledgerData['ledgerId'] = ledgerDoc.id;
+        .map((snapshot) => _groupLedgerByDate(snapshot));
+  }
 
-        if (ledgerData.containsKey('date')) {
-          String dateString = ledgerData['date'];
+  Stream<Map<String, List<QueryDocumentSnapshot>>> _fetchGroupLedgers(
+      String userId) async* {
+    List<String> groupIds = await _getUserGroupIds(userId);
+    Map<String, List<QueryDocumentSnapshot>> allGroupLedgers = {};
 
-          if (!groupedLedgers.containsKey(dateString)) {
-            groupedLedgers[dateString] = [];
-          }
-          groupedLedgers[dateString]!.add(ledgerData);
-        } else {
-          print('Ledger document missing "date" field: ${ledgerDoc.id}');
+    for (String groupId in groupIds) {
+      QuerySnapshot snapshot = await _firestore
+          .collection('groups')
+          .doc(groupId)
+          .collection('ledger')
+          .orderBy('date', descending: true)
+          .get();
+
+      Map<String, List<QueryDocumentSnapshot>> groupedLedgers =
+          _groupLedgerByDate(snapshot);
+
+      // Merge the groupedLedgers into allGroupLedgers
+      groupedLedgers.forEach((date, ledgerList) {
+        if (!allGroupLedgers.containsKey(date)) {
+          allGroupLedgers[date] = [];
         }
-      }
-      var sortedKeys = groupedLedgers.keys.toList()
-        ..sort((a, b) => b.compareTo(a)); //Sort by latest date first.
-      Map<String, List<Map<String, dynamic>>> sortedGroupedLedgers = {};
-      for (var key in sortedKeys) {
-        sortedGroupedLedgers[key] = groupedLedgers[key]!;
-      }
+        allGroupLedgers[date]!.addAll(ledgerList);
+      });
+    }
 
-      return sortedGroupedLedgers;
+    // Yield the merged group ledgers as a single stream event
+    yield allGroupLedgers;
+  }
+
+  Future<List<String>> _getUserGroupIds(String userId) async {
+    QuerySnapshot groupSnapshot = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('groups')
+        .get();
+
+    return groupSnapshot.docs.map((doc) => doc.id).toList();
+  }
+
+  Map<String, List<QueryDocumentSnapshot>> _groupLedgerByDate(
+      QuerySnapshot snapshot) {
+    Map<String, List<QueryDocumentSnapshot>> groupedLedgers = {};
+    for (QueryDocumentSnapshot ledgerDoc in snapshot.docs) {
+      Map<String, dynamic> ledgerData =
+          ledgerDoc.data() as Map<String, dynamic>;
+      if (ledgerData.containsKey('date')) {
+        String dateString = ledgerData['date'];
+        if (!groupedLedgers.containsKey(dateString)) {
+          groupedLedgers[dateString] = [];
+        }
+        groupedLedgers[dateString]!.add(ledgerDoc);
+      } else {
+        print('Ledger document missing "date" field: ${ledgerDoc.id}');
+      }
+    }
+    return groupedLedgers;
+  }
+
+  void _mergeLedgers(Map<String, List<QueryDocumentSnapshot>> mergedLedgers,
+      Map<String, List<QueryDocumentSnapshot>> newLedgers) {
+    newLedgers.forEach((date, ledgerList) {
+      if (!mergedLedgers.containsKey(date)) {
+        mergedLedgers[date] = [];
+      }
+      mergedLedgers[date]!.addAll(ledgerList);
     });
   }
 
@@ -119,7 +184,21 @@ class _CustomDropdownState extends State<CustomDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Map<String, List<Map<String, dynamic>>>>(
+    String _getAmountText(Map<String, dynamic> ledgerDocument, String? userId) {
+      if (ledgerDocument['payer'] != null && userId != null) {
+        List<dynamic> payers = ledgerDocument['payer'];
+        for (var payer in payers) {
+          if (payer['payer'] == userId) {
+            return '${ledgerDocument['type'] == 'expense' ? '-฿' : '฿'}${payer['amountPaid'].toStringAsFixed(2)}';
+          }
+        }
+        return '${ledgerDocument['type'] == 'expense' ? '-฿' : '฿'}0.00';
+      } else {
+        return '${ledgerDocument['type'] == 'expense' ? '-฿' : '฿'}${ledgerDocument['amount'].toStringAsFixed(2)}';
+      }
+    }
+
+    return StreamBuilder<Map<String, List<QueryDocumentSnapshot>>>(
       stream: LedgerService().getLedgerEntries(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -135,134 +214,149 @@ class _CustomDropdownState extends State<CustomDropdown> {
         }
 
         final groupedLedgerEntries = snapshot.data!;
+        User? currentUser = FirebaseAuth.instance.currentUser;
 
         return Column(
-          children: groupedLedgerEntries.entries.map((dateGroup) {
-            final date = dateGroup.key;
-            final ledgerDocuments = dateGroup.value;
+          children: [
+            Column(
+              children: groupedLedgerEntries.entries.map((dateGroup) {
+                final date = dateGroup.key;
+                final ledgerSnapshots = dateGroup.value;
 
-            return ExpansionTile(
-              trailing: const SizedBox.shrink(),
-              title: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0, vertical: 12.0),
-                margin: const EdgeInsets.symmetric(vertical: 4.0),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 239, 239, 239),
-                  border: Border.all(
-                      color: const Color.fromARGB(255, 192, 192, 192)),
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color.fromARGB(20, 0, 0, 0),
-                      blurRadius: 4,
-                      spreadRadius: 2,
-                      offset: Offset(0, 4),
-                    )
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(date,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const Icon(
-                      Icons.arrow_drop_down,
-                      color: Color.fromARGB(255, 166, 20, 20),
+                return ExpansionTile(
+                  trailing: const SizedBox.shrink(),
+                  title: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 12.0),
+                    margin: const EdgeInsets.symmetric(vertical: 4.0),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 239, 239, 239),
+                      border: Border.all(
+                          color: const Color.fromARGB(255, 192, 192, 192)),
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Color.fromARGB(20, 0, 0, 0),
+                            blurRadius: 4,
+                            spreadRadius: 2,
+                            offset: Offset(0, 4))
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              children: ledgerDocuments.map((ledgerDocument) {
-                return ListTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(date,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        const Icon(Icons.arrow_drop_down,
+                            color: Color.fromARGB(255, 166, 20, 20)),
+                      ],
+                    ),
+                  ),
+                  children: ledgerSnapshots.map((ledgerSnapshot) {
+                    final ledgerDocument =
+                        ledgerSnapshot.data() as Map<String, dynamic>;
+
+                    return ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(categoryEmojis[ledgerDocument['category']] ?? '',
-                              style: const TextStyle(fontSize: 40)),
-                          const SizedBox(width: 10),
-                          Container(
-                            width: 1,
-                            height: 50,
-                            color: const Color.fromARGB(255, 174, 174, 174),
-                          ),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
                               Text(
-                                ledgerDocument['category'],
-                                style: MyTextStyles.mediumBlackText,
+                                  categoryEmojis[ledgerDocument['category']] ??
+                                      '❔',
+                                  style: const TextStyle(fontSize: 40)),
+                              const SizedBox(width: 10),
+                              Container(
+                                width: 1,
+                                height: 50,
+                                color: const Color.fromARGB(255, 174, 174, 174),
                               ),
-                              const SizedBox(
-                                height: 5,
+                              const SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(ledgerDocument['category'],
+                                      style: MyTextStyles.mediumBlackText),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    ledgerDocument['member'] != null &&
+                                            ledgerDocument['member'] > 0
+                                        ? '👤 ${ledgerDocument['member']}'
+                                        : 'Me',
+                                    style: MyTextStyles.size14lightText,
+                                  ),
+                                ],
                               ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
                               Text(
-                                  ledgerDocument['member'] != null &&
-                                          ledgerDocument['member'] > 0
-                                      ? '👤 ${ledgerDocument['member']}' // Display member count
-                                      : 'Me', // Display 'Me' if member is 0
-                                  style: MyTextStyles.size14lightText),
+                                _getAmountText(
+                                    ledgerDocument, currentUser?.uid),
+                                style: ledgerDocument['type'] == 'expense'
+                                    ? MyTextStyles.size20RedText
+                                    : MyTextStyles.size20GreenText,
+                              ),
                             ],
                           ),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                              '${ledgerDocument['type'] == 'expense' ? '-฿' : '฿'}${ledgerDocument['amount'].toStringAsFixed(2)}',
-                              style: ledgerDocument['type'] == 'expense'
-                                  ? MyTextStyles.size20RedText
-                                  : MyTextStyles.size20BlackText),
-                        ],
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    if (ledgerDocument['member'] != null &&
-                        ledgerDocument['member'] > 1) {
-                      // Show GroupTransactionDetailsDialog
-                      showDialog(
-                        context: context,
-                        builder: (context) => GroupTransactionDetailsDialog(
-                          emoji:
-                              categoryEmojis[ledgerDocument['category']] ?? '',
-                          itemName: ledgerDocument['category'],
-                          amount:
-                              '${ledgerDocument['type'] == 'expense' ? '-฿' : '฿'}${ledgerDocument['amount'].toStringAsFixed(2)}',
-                          date: ledgerDocument['date'],
-                          member:
-                              '👤 ${ledgerDocument['member']}', // Show member count
-                          comment: ledgerDocument['comment'] ?? '',
-                          context: context,
-                        ),
-                      );
-                    } else {
-                      // Show TransactionDetailsDialog
-                      showDialog(
-                        context: context,
-                        builder: (context) => TransactionDetailsDialog(
-                          emoji:
-                              categoryEmojis[ledgerDocument['category']] ?? '',
-                          itemName: ledgerDocument['category'],
-                          ledgerId: ledgerDocument['ledgerId'],
-                          amount:
-                              '${ledgerDocument['type'] == 'expense' ? '-฿' : '฿'}${ledgerDocument['amount'].toStringAsFixed(2)}',
-                          date: ledgerDocument['date'],
-                          member: 'Me', // Show 'Me'
-                          comment: ledgerDocument['comment'] ?? '',
-                          context: context,
-                        ),
-                      );
-                    }
-                  },
+                      onTap: () {
+                        bool isGroup = ledgerDocument['groupId'] != null;
+                        if (ledgerDocument['member'] != null &&
+                            ledgerDocument['member'] > 1) {
+                          // Show GroupTransactionDetailsDialog
+                          showDialog(
+                            context: context,
+                            builder: (context) => GroupTransactionDetailsDialog(
+                              emoji:
+                                  categoryEmojis[ledgerDocument['category']] ??
+                                      '',
+                              itemName: ledgerDocument['category'],
+                              amount: _getAmountText(
+                                  ledgerDocument, currentUser?.uid),
+                              date: ledgerDocument['date'],
+                              member: '👤 ${ledgerDocument['member']}',
+                              comment: ledgerDocument['comment'] ?? '',
+                              context: context,
+                              ledgerDocument:
+                                  ledgerDocument, // Pass the entire document
+                              isGroup: isGroup, //pass the boolean
+                            ),
+                          );
+                        } else {
+                          // Show TransactionDetailsDialog
+                          showDialog(
+                            context: context,
+                            builder: (context) => TransactionDetailsDialog(
+                              emoji:
+                                  categoryEmojis[ledgerDocument['category']] ??
+                                      '',
+                              itemName: ledgerDocument['category'],
+                              ledgerId: ledgerSnapshot.id,
+                              amount: _getAmountText(
+                                  ledgerDocument, currentUser?.uid),
+                              date: ledgerDocument['date'],
+                              member: 'Me',
+                              comment: ledgerDocument['comment'] ?? '',
+                              context: context,
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  }).toList(),
                 );
               }).toList(),
-            );
-          }).toList(),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.04,
+            ),
+          ],
         );
       },
     );

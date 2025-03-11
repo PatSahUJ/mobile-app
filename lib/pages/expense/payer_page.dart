@@ -165,6 +165,7 @@ import 'package:senior_project/pages/expense/expense_data_provider.dart';
 import 'package:senior_project/pages/expense/bill_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:senior_project/style/my_text_style.dart';
 
 class PayerPage extends StatefulWidget {
   final List<String> memberIds;
@@ -237,12 +238,27 @@ class _PayerPageState extends State<PayerPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Who Paid?')),
+      appBar: AppBar(
+          title: Text(
+        'Who Paid?',
+        style: MyTextStyles.heading1,
+      )),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text('Select the person who paid:'),
+            Text(
+              'Select the person who paid:',
+              style: MyTextStyles.size18BlackText,
+            ),
+            Consumer<ExpenseDataProvider>(
+              builder: (context, expenseProvider, child) {
+                return Text(
+                  'Total Amount: ${expenseProvider.amount}',
+                  style: MyTextStyles.size16lightText,
+                );
+              },
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: members.length,

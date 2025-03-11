@@ -274,11 +274,13 @@ class _CatagoryInState extends State<CatagoryIn> {
               onPressed: isSaveButtonEnabled
                   ? () async {
                       User? user = FirebaseAuth.instance.currentUser;
-                      if (user != null &&
-                          widget.amount == 0 &&
-                          _selectedCategoryId != null &&
-                          _selectedDate != null) {
+                      if (user != null
+                          // widget.amount == 0 &&
+                          // _selectedCategoryId != null &&
+                          // _selectedDate != null
+                          ) {
                         try {
+                          print('try to save income');
                           String dateString = DateFormat('yyyy-MM-dd')
                               .format(_selectedDate!)
                               .toString(); // Generate date string

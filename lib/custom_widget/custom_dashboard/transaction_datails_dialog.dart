@@ -80,6 +80,11 @@ class TransactionDetailsDialog extends StatelessWidget {
             ],
           ),
           Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width *
+                  0.65, // Set your max width here
+            ),
+            width: double.infinity,
             margin: const EdgeInsets.all(8),
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
@@ -99,7 +104,7 @@ class TransactionDetailsDialog extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          '$emoji  ',
+                          itemName == 'Debt Repayment' ? '$emoji ' : '',
                           style: const TextStyle(fontSize: 45),
                         ),
                         Text(

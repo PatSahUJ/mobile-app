@@ -14,11 +14,11 @@ class SilverAppBarDefault extends StatelessWidget {
       centerTitle: false,
       stretch: false,
       automaticallyImplyLeading: false,
-      expandedHeight: 50,
+      expandedHeight: MediaQuery.of(context).size.width * 0.18,
       flexibleSpace: Stack(
         children: [
           Positioned(
-              top: MediaQuery.of(context).size.height * 0.02,
+              top: MediaQuery.of(context).size.height * 0.025,
               right: 10,
               child: Row(
                 children: [
@@ -41,16 +41,16 @@ class SilverAppBarDefault extends StatelessWidget {
                 ],
               )),
           Positioned.fill(
-              top: MediaQuery.of(context).size.height * 0.09,
+              top: MediaQuery.of(context).size.height * 0.1,
               child: Container(
                 decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: Color.fromARGB(255, 255, 255, 255),
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(40)),
                     boxShadow: [
                       BoxShadow(
                         color: Color.fromARGB(79, 66, 66, 66),
-                        blurRadius: 5,
+                        blurRadius: 9,
                         spreadRadius: -2,
                         offset: Offset(0.0, -12.0),
                       )

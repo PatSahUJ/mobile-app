@@ -43,6 +43,12 @@ class MyTextStyles {
     color: Colors.black,
     fontWeight: FontWeight.w400,
   );
+  static const TextStyle size16lightText = TextStyle(
+    fontFamily: 'Inter',
+    fontSize: 14,
+    color: Colors.black,
+    fontWeight: FontWeight.w400,
+  );
   static const TextStyle size16BlackText = TextStyle(
     fontFamily: 'Inter',
     fontSize: 16,
@@ -88,7 +94,7 @@ class MyTextStyles {
   static const TextStyle size20GreenText = TextStyle(
     fontFamily: 'Inter',
     fontSize: 20,
-    color: Color.fromARGB(255, 4, 158, 2),
+    color: Color.fromARGB(255, 51, 156, 50),
     fontWeight: FontWeight.w700,
   );
   static const TextStyle size20RedText = TextStyle(

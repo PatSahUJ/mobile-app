@@ -80,6 +80,7 @@ class ExpenseDataProvider with ChangeNotifier {
 
   void updateComment(String comment) {
     _comment = comment;
+    _commentController.text = comment;
     print('Comment updated to: $_comment');
     notifyListeners();
   }
@@ -170,6 +171,10 @@ class ExpenseDataProvider with ChangeNotifier {
     }
   }
 
+  TextEditingController _commentController = TextEditingController();
+
+  TextEditingController get commentController => _commentController;
+
   void clearData() {
     _amount = 0.0;
     _category = '';
@@ -180,6 +185,7 @@ class ExpenseDataProvider with ChangeNotifier {
     _payersData.clear();
     _billsAmounts.clear();
     clearMemberControllers();
+    _commentController.clear();
     notifyListeners();
   }
 }
