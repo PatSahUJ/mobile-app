@@ -120,6 +120,7 @@ class _PaybackDialogState extends State<PaybackDialog> {
         currentUserId == widget.payerId; // Check if current user is the payer
 
     return AlertDialog(
+      backgroundColor: Colors.white,
       title: const Text(
         'Debt info:',
         style: MyTextStyles.heading1,
@@ -127,35 +128,58 @@ class _PaybackDialogState extends State<PaybackDialog> {
       content: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Amount: \$${widget.amount.toStringAsFixed(2)}',
-                    style: MyTextStyles.mediumBlackText,
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(
+                    Theme.of(context).primaryColor.red,
+                    (Theme.of(context).primaryColor.green + 31).clamp(0, 255),
+                    (Theme.of(context).primaryColor.blue + 95).clamp(0, 255),
+                    1.0,
                   ),
-                  Text(
-                    'Category: ${widget.category}',
-                    style: MyTextStyles.mediumBlackText,
-                  ),
-                  Text(
-                    'Date: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(widget.date))}',
-                    style: MyTextStyles.mediumBlackText,
-                  ),
-                  Text(
-                    'Comment: ${widget.comment}',
-                    style: MyTextStyles.mediumBlackText,
-                  ),
-                  Text(
-                    'Payer: ${widget.payerUsername}',
-                    style: MyTextStyles.mediumBlackText,
-                  ),
-                  Text(
-                    'Payee: ${widget.payeeUsername}',
-                    style: MyTextStyles.mediumBlackText,
-                  ),
-                ],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${widget.category}',
+                          style: MyTextStyles.mediumBlackText,
+                        ),
+                        Text(
+                          '\$${widget.amount.toStringAsFixed(2)}',
+                          style: MyTextStyles.mediumBlackText,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.01,
+                    ),
+                    Text(
+                      'Date: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(widget.date))}',
+                      style: MyTextStyles.size16BlackText,
+                    ),
+                    Text(
+                      'Comment: ${widget.comment}',
+                      style: MyTextStyles.size16BlackText,
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.01,
+                    ),
+                    Text(
+                      'Payer: ${widget.payerUsername}',
+                      style: MyTextStyles.mediumBlackText,
+                    ),
+                    Text(
+                      'Payee: ${widget.payeeUsername}',
+                      style: MyTextStyles.mediumBlackText,
+                    ),
+                  ],
+                ),
               ),
             ),
       actions: <Widget>[

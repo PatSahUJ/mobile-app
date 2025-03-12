@@ -1,10 +1,9 @@
-// transaction_details_dialog.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:senior_project/style/my_text_style.dart';
 
-class TransactionDetailsDialog extends StatelessWidget {
+class TransactionDetailsDialog extends StatefulWidget {
   final String emoji;
   final String itemName;
   final String amount;
@@ -13,6 +12,7 @@ class TransactionDetailsDialog extends StatelessWidget {
   final String comment;
   final BuildContext context;
   final String ledgerId;
+
   const TransactionDetailsDialog({
     Key? key,
     required this.emoji,
@@ -25,6 +25,49 @@ class TransactionDetailsDialog extends StatelessWidget {
     required this.ledgerId,
   }) : super(key: key);
 
+  @override
+  _TransactionDetailsDialogState createState() =>
+      _TransactionDetailsDialogState();
+}
+
+class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
+  String? relatedGroupId;
+  String? type;
+  String? relatedUserId;
+  double? amount;
+  String? currentUserId;
+  @override
+  void initState() {
+    super.initState();
+    _fetchLedgerData();
+  }
+
+  Future<void> _fetchLedgerData() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      DocumentSnapshot ledgerDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('ledger')
+          .doc(widget.ledgerId)
+          .get();
+
+      if (ledgerDoc.exists && ledgerDoc.data() != null) {
+        Map<String, dynamic> data = ledgerDoc.data() as Map<String, dynamic>;
+        setState(() {
+          relatedGroupId = data['relatedGroupId'] as String?;
+          type = data['type'] as String?;
+          relatedUserId = data['relatedUserId'] as String?;
+          amount = data['amount'] as double?;
+        });
+      }
+    } catch (e) {
+      print('Error fetching ledger data: $e');
+    }
+  }
+
   Future<void> deleteTransaction(BuildContext context) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -34,14 +77,84 @@ class TransactionDetailsDialog extends StatelessWidget {
           .collection('users')
           .doc(user.uid)
           .collection('ledger')
-          .doc(ledgerId)
+          .doc(widget.ledgerId)
           .delete();
 
       Navigator.pop(context); // Close the dialog after deletion
     } catch (e) {
       print('Error deleting transaction: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete transaction.')),
+        const SnackBar(content: Text('Failed to delete transaction.')),
+      );
+    }
+  }
+
+  Future<void> denyPayment(BuildContext context) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        setState(() {
+          currentUserId = user.uid;
+        });
+      }
+      if (user == null ||
+          relatedGroupId == null ||
+          relatedUserId == null ||
+          amount == null) return;
+
+      // 1. Add transaction to group ledger (query and update)
+      QuerySnapshot groupLedgerQuery = await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(relatedGroupId)
+          .collection('ledger')
+          .get();
+
+      if (groupLedgerQuery.docs.isNotEmpty) {
+        // Assuming only one ledger document exists
+        String groupLedgerId = groupLedgerQuery.docs.first.id;
+
+        await FirebaseFirestore.instance
+            .collection('groups')
+            .doc(relatedGroupId)
+            .collection('ledger')
+            .doc(groupLedgerId)
+            .update({
+          'transactions': FieldValue.arrayUnion([
+            {'payer': relatedUserId, 'amount': amount, 'payee': currentUserId}
+          ])
+        });
+      }
+      // 2. Delete ledgers for both users
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .collection('ledger')
+          .doc(widget.ledgerId)
+          .delete();
+
+      // Query and delete related ledger for relatedUserId
+      QuerySnapshot relatedUserLedger = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(relatedUserId)
+          .collection('ledger')
+          .where('relatedGroupId', isEqualTo: relatedGroupId)
+          .get();
+
+      if (relatedUserLedger.docs.isNotEmpty) {
+        // Assuming only one ledger should match the relatedGroupId
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(relatedUserId)
+            .collection('ledger')
+            .doc(relatedUserLedger.docs.first.id)
+            .delete();
+      }
+
+      Navigator.pop(context); // Close the dialog after denying
+    } catch (e) {
+      print('Error denying payment: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to deny payment.')),
       );
     }
   }
@@ -57,32 +170,27 @@ class TransactionDetailsDialog extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.max,
             children: [
-              Container(
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Icon(
-                    Icons.close,
-                    size: 30,
-                    color: Theme.of(context).primaryColor,
-                  ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Icon(
+                  Icons.close,
+                  size: 30,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
-              Spacer(), // This will take up all the available space in between
-              Container(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                    onPressed: () => deleteTransaction(context),
-                    child: Text(
-                      '🗑️',
-                      style: TextStyle(fontSize: 20),
-                    )),
+              const Spacer(),
+              TextButton(
+                onPressed: () => deleteTransaction(context),
+                child: const Text(
+                  '🗑️',
+                  style: TextStyle(fontSize: 20),
+                ),
               ),
             ],
           ),
           Container(
             constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width *
-                  0.65, // Set your max width here
+              maxWidth: MediaQuery.of(context).size.width * 0.65,
             ),
             width: double.infinity,
             margin: const EdgeInsets.all(8),
@@ -104,21 +212,22 @@ class TransactionDetailsDialog extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          itemName == 'Debt Repayment' ? '$emoji ' : '',
+                          widget.itemName == 'Debt Repayment'
+                              ? '${widget.emoji} '
+                              : '',
                           style: const TextStyle(fontSize: 45),
                         ),
                         Text(
-                          itemName,
+                          widget.itemName,
                           style: MyTextStyles.heading2,
                         ),
                       ],
                     ),
                     Text(
-                      amount,
-                      style: amount.startsWith('-')
+                      widget.amount,
+                      style: widget.amount.startsWith('-')
                           ? MyTextStyles.size20RedText
-                          : MyTextStyles
-                              .size20GreenText, // Use green for income
+                          : MyTextStyles.size20GreenText,
                     ),
                   ],
                 ),
@@ -129,7 +238,7 @@ class TransactionDetailsDialog extends StatelessWidget {
                       style: MyTextStyles.size16GreyText,
                     ),
                     Text(
-                      date,
+                      widget.date,
                       style: MyTextStyles.size16BlackText,
                     ),
                   ],
@@ -141,7 +250,7 @@ class TransactionDetailsDialog extends StatelessWidget {
                       style: MyTextStyles.size16GreyText,
                     ),
                     Text(
-                      member,
+                      widget.member,
                       style: MyTextStyles.size16BlackText,
                     ),
                   ],
@@ -153,7 +262,7 @@ class TransactionDetailsDialog extends StatelessWidget {
                       style: MyTextStyles.size16GreyText,
                     ),
                     Text(
-                      comment,
+                      widget.comment,
                       style: MyTextStyles.size16BlackText,
                     ),
                   ],
@@ -161,6 +270,16 @@ class TransactionDetailsDialog extends StatelessWidget {
               ],
             ),
           ),
+          if (relatedGroupId != null && type != 'expense')
+            Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor),
+                onPressed: () => denyPayment(context),
+                child: const Text('Deny Payment'),
+              ),
+            ),
         ],
       ),
     );

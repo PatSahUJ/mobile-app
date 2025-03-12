@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:senior_project/custom_widget/custom_dashboard/filter/filter_provider.dart';
 import 'package:senior_project/pages/auth_page.dart';
 import 'package:senior_project/pages/setting/friends_page.dart';
 import 'package:senior_project/pages/setting/friends_provider.dart';
@@ -34,8 +35,11 @@ class MainApp extends StatelessWidget {
           create: (context) => ExpenseDataProvider(),
         ),
         ChangeNotifierProvider(
-          // Add FriendsProvider here
           create: (context) => FriendsProvider(),
+        ),
+        ChangeNotifierProvider(
+          // Add FilterProvider here
+          create: (context) => FilterProvider(),
         ),
       ],
       child: MaterialApp(

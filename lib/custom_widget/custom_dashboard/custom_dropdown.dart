@@ -264,9 +264,13 @@ class _CustomDropdownState extends State<CustomDropdown> {
                           Row(
                             children: [
                               Text(
-                                  categoryEmojis[ledgerDocument['category']] ??
-                                      '❔',
-                                  style: const TextStyle(fontSize: 40)),
+                                ledgerDocument['category'] == 'Repayment'
+                                    ? '💸'
+                                    : categoryEmojis[
+                                            ledgerDocument['category']] ??
+                                        '❔',
+                                style: const TextStyle(fontSize: 40),
+                              ),
                               const SizedBox(width: 10),
                               Container(
                                 width: 1,

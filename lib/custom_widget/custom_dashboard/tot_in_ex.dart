@@ -19,114 +19,85 @@ class _TotInExState extends State<TotInEx> {
     if (user == null) {
       return Stream.value({});
     }
-
     String userId = user.uid;
 
-    return _fetchUserLedger(userId).asyncExpand((userLedger) {
-      return _fetchGroupLedgers(userId).map((groupLedgers) {
-        // Combine user and group ledgers
-        List<QueryDocumentSnapshot> combinedLedgers = [];
-        combinedLedgers.addAll(userLedger);
-        combinedLedgers.addAll(groupLedgers);
-
-        double income = 0;
-        double expense = 0;
-
-        for (QueryDocumentSnapshot ledgerDoc in combinedLedgers) {
-          Map<String, dynamic> data = ledgerDoc.data() as Map<String, dynamic>;
-          String type = data['type'] as String;
-          num? amount = data['amount'] as num?;
-          List<dynamic>? payers = data['payer'] as List<dynamic>?;
-
-          if (payers != null && payers.isNotEmpty) {
-            // Group ledger entry
-            for (var payer in payers) {
-              if (payer['payer'] == userId) {
-                amount = payer['amountPaid'] as num?;
-                break;
-              }
-            }
-          }
-
-          if (amount != null) {
-            try {
-              double amountDouble = amount.toDouble();
-              if (type == 'income') {
-                income += amountDouble;
-              } else if (type == 'expense') {
-                expense += amountDouble;
-              }
-            } catch (e) {
-              print('Error processing amount: $e');
-              print('Problematic data: $data');
-            }
-          } else {
-            print('Amount is null in data: $data');
-          }
-        }
-
-        return {
-          'income': income,
-          'expense': expense,
-          'total': income - expense,
-        };
-      });
-    });
-  }
-
-  Stream<List<QueryDocumentSnapshot>> _fetchUserLedger(String userId) {
     return FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('ledger')
         .snapshots()
-        .map((snapshot) => snapshot.docs);
-  }
+        .asyncExpand((userLedgerSnapshot) async* {
+      double income = 0;
+      double expense = 0;
 
-  Stream<List<QueryDocumentSnapshot>> _fetchGroupLedgers(String userId) async* {
-    List<String> groupIds = await _getUserGroupIds(userId);
+      // Process user's personal ledger
+      for (QueryDocumentSnapshot ledgerDoc in userLedgerSnapshot.docs) {
+        Map<String, dynamic> data = ledgerDoc.data() as Map<String, dynamic>;
+        String type = data['type'] as String;
+        num? amount = data['amount'] as num?;
 
-    // Skip if no groups are found
-    if (groupIds.isEmpty) {
-      print('No groups found, yielding empty list');
-      yield []; // Yield an empty list to complete the stream
-      return;
-    }
+        if (amount != null) {
+          try {
+            double amountDouble = amount.toDouble();
+            if (type == 'income') {
+              income += amountDouble;
+            } else if (type == 'expense') {
+              expense += amountDouble;
+            }
+          } catch (e) {
+            print('Error processing amount: $e');
+            print('Problematic data: $data');
+          }
+        } else {
+          print('Amount is null in data: $data');
+        }
+      }
 
-    for (String groupId in groupIds) {
-      yield* FirebaseFirestore.instance
-          .collection('groups')
-          .doc(groupId)
-          .collection('ledger')
-          .snapshots()
-          .map((snapshot) => snapshot.docs);
-    }
-  }
-
-  Future<List<String>> _getUserGroupIds(String userId) async {
-    try {
+      // Process group ledgers
       QuerySnapshot groupSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .collection('groups')
           .get();
 
-      // If the groups collection is empty, return an empty list
-      if (groupSnapshot.docs.isEmpty) {
-        return []; // No groups found, skip fetching group ledgers
+      for (QueryDocumentSnapshot groupDoc in groupSnapshot.docs) {
+        String groupId = groupDoc.id;
+        QuerySnapshot groupLedgerSnapshot = await FirebaseFirestore.instance
+            .collection('groups')
+            .doc(groupId)
+            .collection('ledger')
+            .get();
+
+        if (groupLedgerSnapshot.docs.isNotEmpty) {
+          Map<String, dynamic> groupLedgerData =
+              groupLedgerSnapshot.docs.first.data() as Map<String, dynamic>;
+
+          List<dynamic>? payers = groupLedgerData['payer'] as List<dynamic>?;
+
+          if (payers != null) {
+            for (var payer in payers) {
+              if (payer['payer'] == userId) {
+                num? amountPaid = payer['amountPaid'] as num?;
+                if (amountPaid != null) {
+                  expense += amountPaid.toDouble();
+                }
+                break; // Found the user, no need to continue checking payers
+              }
+            }
+          }
+        }
       }
 
-      // Return the group IDs if groups exist
-      return groupSnapshot.docs.map((doc) => doc.id).toList();
-    } catch (e) {
-      print('Error fetching user groups: $e');
-      return []; // If there’s an error, return an empty list
-    }
+      yield {
+        'income': income,
+        'expense': expense,
+        'total': income - expense,
+      };
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // (Your existing build method remains the same)
     return StreamBuilder<Map<String, dynamic>>(
       stream: _getLedgerDataStream(),
       builder: (context, snapshot) {
@@ -138,10 +109,8 @@ class _TotInExState extends State<TotInEx> {
           return const CircularProgressIndicator();
         }
 
-        if (!snapshot.hasData ||
-            snapshot.data == null ||
-            snapshot.data!.isEmpty) {
-          return const Text('No data available');
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const Text('No data');
         }
 
         final data = snapshot.data!;
