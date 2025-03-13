@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:senior_project/custom_widget/custom_dashboard/filter/filter_popup.dart';
+import 'package:senior_project/custom_widget/custom_dashboard/filter/filter_provider.dart';
 import 'package:senior_project/pages/dept/debt_page.dart';
 import 'package:senior_project/style/my_text_style.dart';
 
@@ -228,9 +231,19 @@ class _TotInExState extends State<TotInEx> {
       onPressed: () {
         setState(() {
           _selectedIndex = index;
-          // Add logic to filter data based on selected period (Weekly, Monthly, Yearly)
-          // For example, you can call a function to update the _getLedgerDataStream()
-          // based on the selected period.
+          FilterType filter;
+          if (index == 0) {
+            filter = FilterType.weekly;
+            FilterPopup.showWeeklyPopup(context); // Modification Here
+          } else if (index == 1) {
+            filter = FilterType.monthly;
+            FilterPopup.showMonthlyPopup(context); // Modification Here
+          } else {
+            filter = FilterType.yearly;
+            FilterPopup.showYearlyPopup(context); // Modification Here
+          }
+          Provider.of<FilterProvider>(context, listen: false)
+              .setFilter(filter); // Modification Here
         });
       },
       child: Text(

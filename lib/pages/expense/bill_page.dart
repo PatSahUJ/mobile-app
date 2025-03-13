@@ -421,6 +421,7 @@ class _BillPageState extends State<BillPage> {
                       'payer': expenseProvider.payersData,
                       'bill': expenseProvider.billsAmounts,
                       'creator': user.uid,
+                      'groupId': groupId,
                     });
 
                     for (String memberId in members) {

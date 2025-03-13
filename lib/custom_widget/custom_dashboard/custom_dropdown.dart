@@ -311,6 +311,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
                       ),
                       onTap: () {
                         bool isGroup = ledgerDocument['groupId'] != null;
+                        print('isgroup: $isGroup');
                         if (ledgerDocument['member'] != null &&
                             ledgerDocument['member'] > 1) {
                           // Show GroupTransactionDetailsDialog

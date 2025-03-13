@@ -143,25 +143,12 @@ class _GroupTransactionDetailsDialogState
     }
     final currentUserId = user.uid;
 
-    // Get groupId from user's groups collection
-    String? groupId;
-    final userGroupsSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserId)
-        .collection('groups')
-        .get();
-
-    if (userGroupsSnapshot.docs.isEmpty) {
-      print("Error: No groupId found in user's groups.");
-      return;
-    }
-
-    // Assuming there is only one group (if multiple groups exist, adjust accordingly)
-    groupId = userGroupsSnapshot.docs.first.id;
-    print("Found groupId in user's groups: $groupId");
-
-    // Now fetch the ledger document using groupId
     final ledgerDocument = widget.ledgerDocument;
+
+    final groupId = ledgerDocument['groupId'];
+
+    // print("Found groupId: $groupId");
+
     final billData = ledgerDocument['bill'];
     if (billData == null || billData is! List) {
       print("Error: bill data is null or not a list");
@@ -179,18 +166,18 @@ class _GroupTransactionDetailsDialogState
       String? memberId = bill['name'] as String?;
       if (memberId == null) continue;
 
-      // Query to find ledger entries for this payer
-      QuerySnapshot ledgerQuery = await FirebaseFirestore.instance
-          .collection('groups')
-          .doc(groupId)
-          .collection('ledger')
-          .where('transactions', arrayContains: {'payer': memberId}).get();
+      // // Query to find ledger entries for this payer
+      // QuerySnapshot ledgerQuery = await FirebaseFirestore.instance
+      //     .collection('groups')
+      //     .doc(groupId)
+      //     .collection('ledger')
+      //     .where('transactions', arrayContains: {'payer': memberId}).get();
 
-      for (QueryDocumentSnapshot ledgerDoc in ledgerQuery.docs) {
-        // Delete the ledger transaction document
-        await ledgerDoc.reference.delete();
-        print('Deleted transaction for: $memberId, ledgerId: ${ledgerDoc.id}');
-      }
+      // for (QueryDocumentSnapshot ledgerDoc in ledgerQuery.docs) {
+      //   // Delete the ledger transaction document
+      //   await ledgerDoc.reference.delete();
+      //   print('Deleted transaction for: $memberId, ledgerId: ${ledgerDoc.id}');
+      // }
 
       // Delete the reference from the user's group collection
       await FirebaseFirestore.instance
