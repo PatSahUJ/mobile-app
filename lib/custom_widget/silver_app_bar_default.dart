@@ -26,12 +26,6 @@ class SilverAppBarDefault extends StatelessWidget {
                     height: 20,
                   ),
                   IconButton(
-                    icon: Image.asset('asset/icons/loupe.png', width: 40),
-                    onPressed: () {
-                      // Define the action when search icon is pressed
-                    },
-                  ),
-                  IconButton(
                     alignment: Alignment.center,
                     icon: Image.asset('asset/icons/setting.png', width: 50),
                     onPressed: () {

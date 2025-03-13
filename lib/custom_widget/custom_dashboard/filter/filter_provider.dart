@@ -8,6 +8,7 @@ class FilterProvider with ChangeNotifier {
   int? _selectedMonth;
   DateTime? _weeklyStartDate;
   DateTime? _weeklyEndDate;
+  String? _selectedCategory;
 
   FilterProvider() {
     // Initialize to current month and year on app start
@@ -21,6 +22,7 @@ class FilterProvider with ChangeNotifier {
   int? get selectedMonth => _selectedMonth;
   DateTime? get weeklyStartDate => _weeklyStartDate;
   DateTime? get weeklyEndDate => _weeklyEndDate;
+  String? get selectedCategory => _selectedCategory;
 
   void setFilter(FilterType filter) {
     _selectedFilter = filter;
@@ -80,8 +82,14 @@ class FilterProvider with ChangeNotifier {
     }
   }
 
-  void setMonthToDecember() {
-    _selectedMonth = 12;
+  void setSelectedCategory(String? category) {
+    // Add this method
+    _selectedCategory = category;
+    notifyListeners();
+  }
+
+  void clearSelectedCategory() {
+    _selectedCategory = null;
     notifyListeners();
   }
 }

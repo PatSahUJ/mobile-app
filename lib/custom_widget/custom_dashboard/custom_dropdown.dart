@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:senior_project/custom_widget/custom_dashboard/filter/filter_provider.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/group_transaction_details_dialog.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/transaction_datails_dialog.dart';
 import 'package:senior_project/style/my_text_style.dart';
@@ -11,14 +14,16 @@ class LedgerService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _ledgerStreamController =
       StreamController<Map<String, List<QueryDocumentSnapshot>>>();
-  Stream<Map<String, List<QueryDocumentSnapshot>>> getLedgerEntries() {
+
+  Stream<Map<String, List<QueryDocumentSnapshot>>> getLedgerEntries(
+      FilterProvider filterProvider) {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return Stream.value({});
 
     String userId = user.uid;
 
-    return _fetchUserLedger(userId).asyncExpand((userLedger) {
-      return _fetchGroupLedgers(userId).map((groupLedgers) {
+    return _fetchUserLedger(userId, filterProvider).asyncExpand((userLedger) {
+      return _fetchGroupLedgers(userId, filterProvider).map((groupLedgers) {
         // Merge user and group ledgers
         Map<String, List<QueryDocumentSnapshot>> mergedLedgers = {};
         _mergeLedgers(mergedLedgers, userLedger);
@@ -37,18 +42,21 @@ class LedgerService {
   }
 
   Stream<Map<String, List<QueryDocumentSnapshot>>> _fetchUserLedger(
-      String userId) {
+      String userId, FilterProvider filterProvider) {
+    // Add FilterProvider parameter
     return _firestore
         .collection('users')
         .doc(userId)
         .collection('ledger')
         .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) => _groupLedgerByDate(snapshot));
+        .map((snapshot) => _groupLedgerByDate(
+            snapshot, filterProvider)); // Pass filterProvider
   }
 
   Stream<Map<String, List<QueryDocumentSnapshot>>> _fetchGroupLedgers(
-      String userId) async* {
+      String userId, FilterProvider filterProvider) async* {
+    // Add FilterProvider parameter
     List<String> groupIds = await _getUserGroupIds(userId);
     Map<String, List<QueryDocumentSnapshot>> allGroupLedgers = {};
 
@@ -61,7 +69,7 @@ class LedgerService {
           .get();
 
       Map<String, List<QueryDocumentSnapshot>> groupedLedgers =
-          _groupLedgerByDate(snapshot);
+          _groupLedgerByDate(snapshot, filterProvider); // Pass filterProvider
 
       // Merge the groupedLedgers into allGroupLedgers
       groupedLedgers.forEach((date, ledgerList) {
@@ -87,22 +95,77 @@ class LedgerService {
   }
 
   Map<String, List<QueryDocumentSnapshot>> _groupLedgerByDate(
-      QuerySnapshot snapshot) {
+      QuerySnapshot snapshot, FilterProvider filterProvider) {
+    // Add FilterProvider parameter
     Map<String, List<QueryDocumentSnapshot>> groupedLedgers = {};
     for (QueryDocumentSnapshot ledgerDoc in snapshot.docs) {
       Map<String, dynamic> ledgerData =
           ledgerDoc.data() as Map<String, dynamic>;
       if (ledgerData.containsKey('date')) {
         String dateString = ledgerData['date'];
-        if (!groupedLedgers.containsKey(dateString)) {
-          groupedLedgers[dateString] = [];
+        if (_shouldIncludeData(dateString, filterProvider, ledgerData)) {
+          // Filter data
+          if (!groupedLedgers.containsKey(dateString)) {
+            groupedLedgers[dateString] = [];
+          }
+          groupedLedgers[dateString]!.add(ledgerDoc);
         }
-        groupedLedgers[dateString]!.add(ledgerDoc);
       } else {
         print('Ledger document missing "date" field: ${ledgerDoc.id}');
       }
     }
     return groupedLedgers;
+  }
+
+  bool _shouldIncludeData(String dateString, FilterProvider filterProvider,
+      Map<String, dynamic> ledgerData) {
+    final currentFilterType = filterProvider.selectedFilter;
+    final selectedYear = filterProvider.selectedYear;
+    final selectedMonth = filterProvider.selectedMonth;
+    final weeklyStartDate = filterProvider.weeklyStartDate;
+    final weeklyEndDate = filterProvider.weeklyEndDate;
+    final selectedCategory = filterProvider.selectedCategory;
+
+    if (selectedCategory != null) {
+      if (selectedCategory == 'Group Transaction') {
+        // If selectedCategory is "Group Transaction", check for 'groupId'
+        if (ledgerData['groupId'] == null) {
+          return false; // Exclude if 'groupId' is missing
+        }
+      } else {
+        // If selectedCategory is not "Group Transaction", check for category match
+        if (ledgerData['category'] != selectedCategory) {
+          return false;
+        }
+      }
+    }
+
+    if (currentFilterType == FilterType.all) {
+      return true;
+    }
+
+    DateTime date = DateFormat('yyyy-MM-dd').parse(dateString);
+    print(
+        'selected Category: $selectedCategory and Items: ${ledgerData['category']}');
+
+    if (currentFilterType == FilterType.yearly && selectedYear != null) {
+      return date.year == selectedYear;
+    }
+
+    if (currentFilterType == FilterType.monthly &&
+        selectedYear != null &&
+        selectedMonth != null) {
+      return date.year == selectedYear && date.month == selectedMonth;
+    }
+
+    if (currentFilterType == FilterType.weekly &&
+        weeklyStartDate != null &&
+        weeklyEndDate != null) {
+      return date.isAfter(weeklyStartDate.subtract(const Duration(days: 1))) &&
+          date.isBefore(weeklyEndDate.add(const Duration(days: 1)));
+    }
+
+    return false;
   }
 
   void _mergeLedgers(Map<String, List<QueryDocumentSnapshot>> mergedLedgers,
@@ -198,8 +261,10 @@ class _CustomDropdownState extends State<CustomDropdown> {
       }
     }
 
+    final filterProvider = Provider.of<FilterProvider>(context);
+
     return StreamBuilder<Map<String, List<QueryDocumentSnapshot>>>(
-      stream: LedgerService().getLedgerEntries(),
+      stream: LedgerService().getLedgerEntries(filterProvider),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');

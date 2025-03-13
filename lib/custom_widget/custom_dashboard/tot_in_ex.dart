@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:senior_project/custom_widget/custom_dashboard/filter/filter_popup.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/filter/filter_provider.dart';
 import 'package:senior_project/pages/dept/debt_page.dart';
 import 'package:senior_project/style/my_text_style.dart';
@@ -16,6 +16,25 @@ class TotInEx extends StatefulWidget {
 
 class _TotInExState extends State<TotInEx> {
   int? _selectedIndex; // Default to 'Weekly'
+  int _rebuildTrigger = 0; // Add this line
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Provider.of<FilterProvider>(context).addListener(_filterChanged);
+  }
+
+  @override
+  void dispose() {
+    Provider.of<FilterProvider>(context).removeListener(_filterChanged);
+    super.dispose();
+  }
+
+  void _filterChanged() {
+    setState(() {
+      _rebuildTrigger++;
+    });
+  }
 
   Stream<Map<String, dynamic>> _getLedgerDataStream() {
     User? user = FirebaseAuth.instance.currentUser;
@@ -23,6 +42,7 @@ class _TotInExState extends State<TotInEx> {
       return Stream.value({});
     }
     String userId = user.uid;
+    final filterProvider = Provider.of<FilterProvider>(context, listen: false);
 
     return FirebaseFirestore.instance
         .collection('users')
@@ -33,30 +53,31 @@ class _TotInExState extends State<TotInEx> {
       double income = 0;
       double expense = 0;
 
-      // Process user's personal ledger
       for (QueryDocumentSnapshot ledgerDoc in userLedgerSnapshot.docs) {
         Map<String, dynamic> data = ledgerDoc.data() as Map<String, dynamic>;
         String type = data['type'] as String;
         num? amount = data['amount'] as num?;
+        String dateString = data['date'] as String;
 
-        if (amount != null) {
-          try {
-            double amountDouble = amount.toDouble();
-            if (type == 'income') {
-              income += amountDouble;
-            } else if (type == 'expense') {
-              expense += amountDouble;
+        if (_shouldIncludeData(dateString, filterProvider, data)) {
+          if (amount != null) {
+            try {
+              double amountDouble = amount.toDouble();
+              if (type == 'income') {
+                income += amountDouble;
+              } else if (type == 'expense') {
+                expense += amountDouble;
+              }
+            } catch (e) {
+              print('Error processing amount: $e');
+              print('Problematic data: $data');
             }
-          } catch (e) {
-            print('Error processing amount: $e');
-            print('Problematic data: $data');
+          } else {
+            print('Amount is null in data: $data');
           }
-        } else {
-          print('Amount is null in data: $data');
         }
       }
 
-      // Process group ledgers
       QuerySnapshot groupSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -74,17 +95,19 @@ class _TotInExState extends State<TotInEx> {
         if (groupLedgerSnapshot.docs.isNotEmpty) {
           Map<String, dynamic> groupLedgerData =
               groupLedgerSnapshot.docs.first.data() as Map<String, dynamic>;
-
           List<dynamic>? payers = groupLedgerData['payer'] as List<dynamic>?;
+          String dateString = groupLedgerData['date'] as String;
 
-          if (payers != null) {
-            for (var payer in payers) {
-              if (payer['payer'] == userId) {
-                num? amountPaid = payer['amountPaid'] as num?;
-                if (amountPaid != null) {
-                  expense += amountPaid.toDouble();
+          if (_shouldIncludeData(dateString, filterProvider, groupLedgerData)) {
+            if (payers != null) {
+              for (var payer in payers) {
+                if (payer['payer'] == userId) {
+                  num? amountPaid = payer['amountPaid'] as num?;
+                  if (amountPaid != null) {
+                    expense += amountPaid.toDouble();
+                  }
+                  break;
                 }
-                break; // Found the user, no need to continue checking payers
               }
             }
           }
@@ -97,6 +120,53 @@ class _TotInExState extends State<TotInEx> {
         'total': income - expense,
       };
     });
+  }
+
+  bool _shouldIncludeData(String dateString, FilterProvider filterProvider,
+      Map<String, dynamic> ledgerData) {
+    final currentFilterType = filterProvider.selectedFilter;
+    final selectedYear = filterProvider.selectedYear;
+    final selectedMonth = filterProvider.selectedMonth;
+    final weeklyStartDate = filterProvider.weeklyStartDate;
+    final weeklyEndDate = filterProvider.weeklyEndDate;
+    final selectedCategory = filterProvider.selectedCategory;
+
+    if (selectedCategory != null) {
+      if (selectedCategory == 'Group Transaction') {
+        if (ledgerData['groupId'] == null) {
+          return false;
+        }
+      } else {
+        if (ledgerData['category'] != selectedCategory) {
+          return false;
+        }
+      }
+    }
+
+    if (currentFilterType == FilterType.all) {
+      return true;
+    }
+
+    DateTime date = DateFormat('yyyy-MM-dd').parse(dateString);
+
+    if (currentFilterType == FilterType.yearly && selectedYear != null) {
+      return date.year == selectedYear;
+    }
+
+    if (currentFilterType == FilterType.monthly &&
+        selectedYear != null &&
+        selectedMonth != null) {
+      return date.year == selectedYear && date.month == selectedMonth;
+    }
+
+    if (currentFilterType == FilterType.weekly &&
+        weeklyStartDate != null &&
+        weeklyEndDate != null) {
+      return date.isAfter(weeklyStartDate.subtract(const Duration(days: 1))) &&
+          date.isBefore(weeklyEndDate.add(const Duration(days: 1)));
+    }
+
+    return false;
   }
 
   @override
@@ -231,7 +301,6 @@ class _TotInExState extends State<TotInEx> {
       onPressed: () {
         setState(() {
           if (_selectedIndex == index) {
-            // If the same button is clicked again, set filter to all
             _selectedIndex = null;
             Provider.of<FilterProvider>(context, listen: false)
                 .setFilter(FilterType.all);
@@ -265,6 +334,7 @@ class _TotInExState extends State<TotInEx> {
             Provider.of<FilterProvider>(context, listen: false)
                 .setFilter(filter);
           }
+          _rebuildTrigger++; // Add this line
         });
       },
       child: Text(

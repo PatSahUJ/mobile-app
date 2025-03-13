@@ -56,7 +56,8 @@ class _PaybackDialogState extends State<PaybackDialog> {
         'category': 'Repayment',
         'type': 'income',
         'comment': 'Paid by $payerUsername',
-        'relatedGroupId': widget.groupId,
+        //'relatedGroupId': widget.groupId,
+        'groupId': widget.groupId,
         'relatedUserId': widget.payerId,
         'amount': widget.amount,
       });
@@ -71,7 +72,8 @@ class _PaybackDialogState extends State<PaybackDialog> {
         'category': 'Repayment',
         'type': 'expense',
         'comment': 'Pay to $payeeUsername',
-        'relatedGroupId': widget.groupId,
+        //'relatedGroupId': widget.groupId,
+        'groupId': widget.groupId,
         'relatedUserId': widget.payeeId,
         'amount': widget.amount,
       });
