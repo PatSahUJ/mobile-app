@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/filter/filter_provider.dart';
+import 'package:senior_project/style/my_text_style.dart';
 
 class FilterPopup {
   static Future<void> showWeeklyPopup(BuildContext context) async {
@@ -37,17 +38,31 @@ class FilterPopup {
                 },
                 child: const Text('Select End Date'),
               ),
+              // Display selected dates
+              // if (Provider.of<FilterProvider>(context, listen: false)
+              //             .weeklyStartDate !=
+              //         null &&
+              //     Provider.of<FilterProvider>(context, listen: false)
+              //             .weeklyEndDate !=
+              //         null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                // child: Text(
+                //   'Selected: ${Provider.of<FilterProvider>(context, listen: false).weeklyStartDate!.toIso8601String().split('T')[0]} - ${Provider.of<FilterProvider>(context, listen: false).weeklyEndDate!.toIso8601String().split('T')[0]}',
+                //   style: MyTextStyles.size16BlackText,
+                // ),
+              ),
             ],
           ),
           actions: <Widget>[
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                if (startDate != null && endDate != null) {
-                  Provider.of<FilterProvider>(context, listen: false)
-                      .setWeeklyRange(startDate!, endDate!);
-                  Navigator.of(context).pop();
-                }
+                // if (startDate != null && endDate != null) {
+                //   Provider.of<FilterProvider>(context, listen: false)
+                //       .setWeeklyRange(startDate!, endDate!);
+                //   Navigator.of(context).pop();
+                // }
               },
             ),
             TextButton(
@@ -96,31 +111,62 @@ class FilterPopup {
                 },
                 child: const Text('Select Year'),
               ),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.015),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(50, 50), // Width & Height
                 ),
                 onPressed: () async {
-                  selectedMonth = await showDialog<int>(
+                  selectedMonth = await showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return SimpleDialog(
-                        title: const Text('Select Month'),
-                        children: List.generate(
-                          12,
-                          (index) => SimpleDialogOption(
-                            onPressed: () {
-                              Navigator.pop(context, index + 1);
-                            },
-                            child: Text((12 - index).toString()),
-                          ),
+                        title: const Text(
+                          'Select Month',
+                          style: MyTextStyles.size16lightText,
                         ),
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height *
+                                0.045, // Set fixed height
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: List.generate(
+                                  12,
+                                  (index) => SimpleDialogOption(
+                                    onPressed: () {
+                                      Navigator.pop(context, index + 1);
+                                    },
+                                    child: Text(
+                                      (12 - index).toString(),
+                                      style: MyTextStyles.size18BlackText,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       );
                     },
                   );
                 },
                 child: const Text('Select Month'),
               ),
+              // Display selected month and year
+              if (Provider.of<FilterProvider>(context, listen: false)
+                          .selectedYear !=
+                      null &&
+                  Provider.of<FilterProvider>(context, listen: false)
+                          .selectedMonth !=
+                      null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Selected:  ${Provider.of<FilterProvider>(context, listen: false).selectedMonth}',
+                    style: MyTextStyles.size16BlackText,
+                  ),
+                ),
             ],
           ),
           actions: <Widget>[
@@ -154,28 +200,41 @@ class FilterPopup {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Select Year'),
-          content: ElevatedButton(
-            onPressed: () async {
-              selectedYear = await showDialog<int>(
-                context: context,
-                builder: (BuildContext context) {
-                  return SimpleDialog(
-                    title: const Text('Select Year'),
-                    children: List.generate(
-                      DateTime.now().year - 2000 + 1,
-                      (index) => SimpleDialogOption(
-                        onPressed: () {
-                          Navigator.pop(context, 2000 + index);
-                        },
-                        child: Text((2000 + index).toString()),
+          contentPadding: const EdgeInsets.only(top: 20),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            ElevatedButton(
+              onPressed: () async {
+                selectedYear = await showDialog<int>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SimpleDialog(
+                      title: const Text('Select Year'),
+                      children: List.generate(
+                        DateTime.now().year - 2000 + 1,
+                        (index) => SimpleDialogOption(
+                          onPressed: () {
+                            Navigator.pop(context, 2000 + index);
+                          },
+                          child: Text((2000 + index).toString()),
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
-            child: const Text('Select Year'),
-          ),
+                    );
+                  },
+                );
+              },
+              child: const Text('Select Year'),
+            ),
+            if (Provider.of<FilterProvider>(context, listen: false)
+                    .selectedYear !=
+                null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  'Selected: ${Provider.of<FilterProvider>(context, listen: false).selectedYear}',
+                  style: MyTextStyles.size16BlackText,
+                ),
+              ),
+          ]),
           actions: <Widget>[
             TextButton(
               child: const Text('OK'),

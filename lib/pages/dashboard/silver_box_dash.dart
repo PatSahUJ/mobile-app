@@ -42,6 +42,7 @@
 //}
 import 'package:flutter/material.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/date_time_picker.dart';
+import 'package:senior_project/custom_widget/custom_dashboard/filter/custom_date_picker.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/tot_in_ex.dart';
 
 class SilverBoxDash extends StatelessWidget {
@@ -86,7 +87,7 @@ class SilverBoxDash extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              DateTimePickerPage(),
+                              CustomDatePicker(),
                               Expanded(child: TotInEx()),
                             ],
                           ),

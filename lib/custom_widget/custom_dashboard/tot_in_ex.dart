@@ -15,7 +15,7 @@ class TotInEx extends StatefulWidget {
 }
 
 class _TotInExState extends State<TotInEx> {
-  int _selectedIndex = 0; // Default to 'Weekly'
+  int? _selectedIndex; // Default to 'Weekly'
 
   Stream<Map<String, dynamic>> _getLedgerDataStream() {
     User? user = FirebaseAuth.instance.currentUser;
@@ -230,20 +230,41 @@ class _TotInExState extends State<TotInEx> {
       ),
       onPressed: () {
         setState(() {
-          _selectedIndex = index;
-          FilterType filter;
-          if (index == 0) {
-            filter = FilterType.weekly;
-            FilterPopup.showWeeklyPopup(context); // Modification Here
-          } else if (index == 1) {
-            filter = FilterType.monthly;
-            FilterPopup.showMonthlyPopup(context); // Modification Here
+          if (_selectedIndex == index) {
+            // If the same button is clicked again, set filter to all
+            _selectedIndex = null;
+            Provider.of<FilterProvider>(context, listen: false)
+                .setFilter(FilterType.all);
+            Provider.of<FilterProvider>(context, listen: false)
+                .clearMonthYear();
           } else {
-            filter = FilterType.yearly;
-            FilterPopup.showYearlyPopup(context); // Modification Here
+            _selectedIndex = index;
+            FilterType filter;
+            if (index == 0) {
+              filter = FilterType.weekly;
+            } else if (index == 1) {
+              filter = FilterType.monthly;
+              if (Provider.of<FilterProvider>(context, listen: false)
+                          .selectedMonth ==
+                      null ||
+                  Provider.of<FilterProvider>(context, listen: false)
+                          .selectedYear ==
+                      null) {
+                Provider.of<FilterProvider>(context, listen: false)
+                    .setMonthYear(DateTime.now().year, DateTime.now().month);
+              }
+            } else {
+              filter = FilterType.yearly;
+              if (Provider.of<FilterProvider>(context, listen: false)
+                      .selectedYear ==
+                  null) {
+                Provider.of<FilterProvider>(context, listen: false)
+                    .setYear(DateTime.now().year);
+              }
+            }
+            Provider.of<FilterProvider>(context, listen: false)
+                .setFilter(filter);
           }
-          Provider.of<FilterProvider>(context, listen: false)
-              .setFilter(filter); // Modification Here
         });
       },
       child: Text(
