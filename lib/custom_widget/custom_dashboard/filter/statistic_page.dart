@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:senior_project/style/my_text_style.dart';
 
 class StatisticsPage extends StatefulWidget {
   const StatisticsPage({super.key});
@@ -16,12 +17,69 @@ class _StatisticsPageState extends State<StatisticsPage> {
   List<PieChartSectionData> pieChartSections = [];
   String _selectedType = 'expense'; // Default to expense
   Map<String, String> categoryEmojis = {};
+  int? _selectedYear; // Add this line
+  List<int> _availableYears = []; // Add this line
 
   @override
   void initState() {
     super.initState();
     _loadCategoryStatistics();
     _fetchCategoryEmojis();
+    _fetchAvailableYears();
+  }
+
+  Future<void> _fetchAvailableYears() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userId = user.uid;
+    final ledgerSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('ledger')
+        .get();
+
+    Set<int> years = {};
+    for (var doc in ledgerSnapshot.docs) {
+      final data = doc.data();
+      final dateString = data['date'] as String?;
+      if (dateString != null) {
+        DateTime date = DateFormat('yyyy-MM-dd').parse(dateString);
+        years.add(date.year);
+      }
+    }
+
+    final groupSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('groups')
+        .get();
+
+    for (var groupDoc in groupSnapshot.docs) {
+      final groupId = groupDoc.id;
+      final groupLedgerSnapshot = await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(groupId)
+          .collection('ledger')
+          .get();
+
+      if (groupLedgerSnapshot.docs.isNotEmpty) {
+        final groupLedgerData = groupLedgerSnapshot.docs.first.data();
+        final dateString = groupLedgerData['date'] as String?;
+        if (dateString != null) {
+          DateTime date = DateFormat('yyyy-MM-dd').parse(dateString);
+          years.add(date.year);
+        }
+      }
+    }
+
+    List<int> sortedYears = years.toList()..sort((a, b) => b.compareTo(a));
+    setState(() {
+      _availableYears = sortedYears;
+      if (_availableYears.isNotEmpty && _selectedYear == null) {
+        _selectedYear = null; // Default to "All Years"
+      }
+    });
   }
 
   Future<void> _loadCategoryStatistics() async {
@@ -107,12 +165,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
         type != null &&
         dateString != null) {
       DateTime date = DateFormat('yyyy-MM-dd').parse(dateString);
-      if (type == _selectedType) {
-        // Use selected type
-        if (totals.containsKey(category)) {
-          totals[category] = totals[category]! + amount.toDouble();
-        } else {
-          totals[category] = amount.toDouble();
+      if (_selectedYear == null || date.year == _selectedYear) {
+        // Add this line
+        if (type == _selectedType) {
+          if (totals.containsKey(category)) {
+            totals[category] = totals[category]! + amount.toDouble();
+          } else {
+            totals[category] = amount.toDouble();
+          }
         }
       }
     }
@@ -126,20 +186,22 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
     if (payers != null && dateString != null) {
       DateTime date = DateFormat('yyyy-MM-dd').parse(dateString);
-      for (var payer in payers) {
-        if (payer['payer'] == userId) {
-          num? amountPaid = payer['amountPaid'] as num?;
-          if (amountPaid != null) {
-            if (_selectedType == 'expense') {
-              // Only for expense in groups
-              if (totals.containsKey(category)) {
-                totals[category] = totals[category]! + amountPaid.toDouble();
-              } else {
-                totals[category] = amountPaid.toDouble();
+      if (_selectedYear == null || date.year == _selectedYear) {
+        // Add this line
+        for (var payer in payers) {
+          if (payer['payer'] == userId) {
+            num? amountPaid = payer['amountPaid'] as num?;
+            if (amountPaid != null) {
+              if (_selectedType == 'expense') {
+                if (totals.containsKey(category)) {
+                  totals[category] = totals[category]! + amountPaid.toDouble();
+                } else {
+                  totals[category] = amountPaid.toDouble();
+                }
               }
             }
+            break;
           }
-          break;
         }
       }
     }
@@ -171,12 +233,30 @@ class _StatisticsPageState extends State<StatisticsPage> {
         sections.add(
           PieChartSectionData(
             value: total,
-            title: '${emoji}\n${(total / totalSum * 100).toStringAsFixed(1)}%',
-
+            title: '', // Empty title, we'll use RichText
             radius: 80,
             titleStyle:
                 const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            color: colors[colorIndex % colors.length], // Cycle through colors
+            color: colors[colorIndex % colors.length],
+            badgeWidget: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: emoji,
+                    style: const TextStyle(
+                      fontSize: 30, // Adjust emoji size
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '\n${(total / totalSum * 100).toStringAsFixed(1)}%',
+                    style: MyTextStyles.size16BlackText,
+                  )
+                ],
+              ),
+            ),
+            badgePositionPercentageOffset: .98,
           ),
         );
         colorIndex++;
@@ -230,6 +310,33 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             : Colors.grey,
                       ),
                       child: const Text('Income'),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    DropdownButton<int?>(
+                      // Change type to int?
+                      value: _selectedYear,
+                      items: [
+                        const DropdownMenuItem<int?>(
+                          // Add "All Years" option
+                          value: null,
+                          child: Text('All Years'),
+                        ),
+                        ..._availableYears.map((year) {
+                          return DropdownMenuItem<int>(
+                            value: year,
+                            child: Text(year.toString()),
+                          );
+                        }).toList(),
+                      ],
+                      onChanged: (year) {
+                        setState(() {
+                          _selectedYear = year;
+                          _loadCategoryStatistics();
+                        });
+                      },
+                      hint: const Text('Select Year'),
                     ),
                   ],
                 ),
@@ -285,7 +392,15 @@ class _StatisticsPageState extends State<StatisticsPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('$emoji  ${entry.key}: '),
+                Row(
+                  children: [
+                    Text(
+                      '$emoji ',
+                      style: TextStyle(fontSize: 30),
+                    ),
+                    Text('${entry.key}: '),
+                  ],
+                ),
                 Text('\$${entry.value.toStringAsFixed(2)}'),
               ],
             ),
