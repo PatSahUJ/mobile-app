@@ -84,6 +84,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/filter/filter_provider.dart';
+import 'package:senior_project/custom_widget/custom_dashboard/filter/statistic_page.dart';
 import 'package:senior_project/style/my_text_style.dart';
 import 'package:intl/intl.dart';
 
@@ -137,28 +138,44 @@ class CustomDatePicker extends StatelessWidget {
     }
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: _previous,
+        Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.chevron_left),
+              onPressed: _previous,
+            ),
+            Text(
+              currentFilterType == FilterType.monthly
+                  ? '$selectedMonth/$selectedYear'
+                  : currentFilterType == FilterType.yearly
+                      ? '$selectedYear'
+                      : currentFilterType == FilterType.weekly
+                          ? _formatWeeklyRange()
+                          : currentFilterType == FilterType.all
+                              ? 'All'
+                              : '',
+              style: MyTextStyles.size16BlackText,
+            ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right),
+              onPressed: _next,
+            ),
+          ],
         ),
-        Text(
-          currentFilterType == FilterType.monthly
-              ? '$selectedMonth/$selectedYear'
-              : currentFilterType == FilterType.yearly
-                  ? '$selectedYear'
-                  : currentFilterType == FilterType.weekly
-                      ? _formatWeeklyRange()
-                      : currentFilterType == FilterType.all
-                          ? 'All'
-                          : '',
-          style: MyTextStyles.size16BlackText,
-        ),
-        IconButton(
-          icon: const Icon(Icons.chevron_right),
-          onPressed: _next,
-        ),
+        Row(
+          children: [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => StatisticsPage()),
+                  );
+                },
+                icon: Icon(Icons.stacked_bar_chart))
+          ],
+        )
       ],
     );
   }
