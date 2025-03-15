@@ -84,7 +84,7 @@ class _SilverAppBarDashboardState extends State<SilverAppBarDashboard> {
             child: Row(
               children: [
                 const SizedBox(
-                  height: 20,
+                  width: 20,
                 ),
                 IconButton(
                   icon: Builder(
