@@ -83,9 +83,14 @@ class _SilverAppBarDashboardState extends State<SilverAppBarDashboard> {
             right: 10,
             child: Row(
               children: [
-                const SizedBox(
-                  width: 20,
-                ),
+                IconButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/notifications');
+                    },
+                    icon: Icon(
+                      Icons.notifications,
+                      size: 35,
+                    )),
                 IconButton(
                   icon: Builder(
                     builder: (BuildContext context) {

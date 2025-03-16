@@ -386,16 +386,13 @@ class _CustomDropdownState extends State<CustomDropdown> {
                               emoji:
                                   categoryEmojis[ledgerDocument['category']] ??
                                       '',
-                              itemName: ledgerDocument['category'],
                               amount: _getAmountText(
                                   ledgerDocument, currentUser?.uid),
-                              date: ledgerDocument['date'],
-                              member: '👤 ${ledgerDocument['member']}',
-                              comment: ledgerDocument['comment'] ?? '',
                               context: context,
                               ledgerDocument:
                                   ledgerDocument, // Pass the entire document
                               isGroup: isGroup, //pass the boolean
+                              deleteable: true,
                             ),
                           );
                         } else {

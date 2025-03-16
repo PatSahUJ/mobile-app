@@ -186,14 +186,22 @@ class _PaybackDialogState extends State<PaybackDialog> {
             ),
       actions: <Widget>[
         TextButton(
-          child: const Text('Cancel'),
+          child: const Text(
+            'Cancel',
+            style: MyTextStyles.size16BlackText,
+          ),
           onPressed: () {
             Navigator.of(context).pop(false);
           },
         ),
         if (isPayer) // Conditionally show the "Pay Back" button
           ElevatedButton(
-            child: const Text('Pay Back'),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor),
+            child: const Text(
+              'Pay Back',
+              style: MyTextStyles.mediumBoldBlackText,
+            ),
             onPressed: _handlePayback,
           ),
       ],

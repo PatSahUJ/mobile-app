@@ -24,7 +24,12 @@ class _FriendsPageState extends State<FriendsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Friends')),
+      appBar: AppBar(
+        title: Text('Friends'),
+        backgroundColor: Theme.of(context).primaryColor,
+        toolbarHeight: MediaQuery.of(context).size.height * 0.07,
+      ),
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -33,7 +38,14 @@ class _FriendsPageState extends State<FriendsPage> {
               controller: _emailController,
               decoration: InputDecoration(labelText: 'Friend\'s Email'),
             ),
+            SizedBox(
+              height: 10,
+            ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(
+                    255, 195, 235, 255), // Change to your desired color
+              ),
               onPressed: () async {
                 try {
                   await Provider.of<FriendsProvider>(context, listen: false)

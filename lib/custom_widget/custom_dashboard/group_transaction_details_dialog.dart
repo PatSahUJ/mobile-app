@@ -2,30 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/debt_transaction_details_dialog.dart';
+import 'package:senior_project/notification/notifiction_service.dart';
 import 'package:senior_project/style/my_text_style.dart';
 
 class GroupTransactionDetailsDialog extends StatefulWidget {
   final String emoji;
-  final String itemName;
   final String amount;
-  final String date;
-  final String member;
-  final String comment;
   final BuildContext context;
   final Map<String, dynamic> ledgerDocument;
   final bool isGroup;
+  final bool deleteable;
 
   const GroupTransactionDetailsDialog({
     Key? key,
     required this.emoji,
-    required this.itemName,
     required this.amount,
-    required this.date,
-    required this.member,
-    required this.comment,
     required this.context,
     required this.ledgerDocument,
     required this.isGroup,
+    required this.deleteable,
   }) : super(key: key);
 
   @override
@@ -146,8 +141,7 @@ class _GroupTransactionDetailsDialogState
     final ledgerDocument = widget.ledgerDocument;
 
     final groupId = ledgerDocument['groupId'];
-
-    // print("Found groupId: $groupId");
+    final ledgerId = ledgerDocument['ledgerId']; // Get ledgerId from document
 
     final billData = ledgerDocument['bill'];
     if (billData == null || billData is! List) {
@@ -161,34 +155,46 @@ class _GroupTransactionDetailsDialogState
       return;
     }
 
+    // Fetch the creator's username
+    final creatorSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .get();
+    final creatorUsername = creatorSnapshot.exists
+        ? creatorSnapshot['username'] as String? ?? 'Unknown User'
+        : 'Unknown User';
+
     // Loop through each bill and perform deletion
     for (var bill in billData) {
       String? memberId = bill['name'] as String?;
       if (memberId == null) continue;
 
-      // // Query to find ledger entries for this payer
-      // QuerySnapshot ledgerQuery = await FirebaseFirestore.instance
-      //     .collection('groups')
-      //     .doc(groupId)
-      //     .collection('ledger')
-      //     .where('transactions', arrayContains: {'payer': memberId}).get();
-
-      // for (QueryDocumentSnapshot ledgerDoc in ledgerQuery.docs) {
-      //   // Delete the ledger transaction document
-      //   await ledgerDoc.reference.delete();
-      //   print('Deleted transaction for: $memberId, ledgerId: ${ledgerDoc.id}');
-      // }
-
-      // Delete the reference from the user's group collection
       await FirebaseFirestore.instance
           .collection('users')
           .doc(memberId)
           .collection('groups')
           .doc(groupId)
           .delete();
-      Navigator.pushNamed(context, '/dashboard');
       print('Deleted group $groupId reference from user: $memberId');
     }
+
+    // Delete the ledger entry from the group's ledger collection
+    await FirebaseFirestore.instance
+        .collection('groups')
+        .doc(groupId)
+        .collection('ledger')
+        .doc(ledgerId)
+        .delete();
+    print('Deleted ledger entry $ledgerId from group $groupId');
+
+    // Send notification to all group members
+    NotificationService().addGroupLedgerDeletionNotification(
+      groupId,
+      billData.map((bill) => bill['name'] as String).toList(),
+      creatorUsername,
+    );
+
+    Navigator.pushNamed(context, '/dashboard');
   }
 
   @override
@@ -214,15 +220,18 @@ class _GroupTransactionDetailsDialogState
                 ),
               ),
               Spacer(),
-              Container(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: () {
-                    deleteTransaction();
-                  },
-                  child: Text(
-                    '🗑️',
-                    style: TextStyle(fontSize: 20),
+              Visibility(
+                visible: widget.deleteable,
+                child: Container(
+                  alignment: Alignment.topRight,
+                  child: TextButton(
+                    onPressed: () {
+                      deleteTransaction();
+                    },
+                    child: Text(
+                      '🗑️',
+                      style: TextStyle(fontSize: 20),
+                    ),
                   ),
                 ),
               ),
@@ -252,7 +261,7 @@ class _GroupTransactionDetailsDialogState
                           style: const TextStyle(fontSize: 45),
                         ),
                         Text(
-                          widget.itemName,
+                          widget.ledgerDocument['category'],
                           style: MyTextStyles.heading2,
                         ),
                       ],
@@ -272,7 +281,7 @@ class _GroupTransactionDetailsDialogState
                       style: MyTextStyles.size16GreyText,
                     ),
                     Text(
-                      widget.date,
+                      widget.ledgerDocument['date'],
                       style: MyTextStyles.size16BlackText,
                     ),
                   ],
@@ -302,7 +311,7 @@ class _GroupTransactionDetailsDialogState
                       style: MyTextStyles.size16GreyText,
                     ),
                     Text(
-                      widget.comment,
+                      widget.ledgerDocument['comment'],
                       style: MyTextStyles.size14lightText,
                     ),
                   ],
@@ -350,7 +359,7 @@ class _GroupTransactionDetailsDialogState
                 Row(
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.height * 0.02),
-                    Text(
+                    const Text(
                       'For',
                       style: MyTextStyles.mediumBlackText,
                     ),

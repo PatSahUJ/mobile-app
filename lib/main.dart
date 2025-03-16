@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/filter/filter_provider.dart';
+import 'package:senior_project/notification/notification_page.dart';
+import 'package:senior_project/notification/notifiction_service.dart';
 import 'package:senior_project/pages/auth_page.dart';
 import 'package:senior_project/pages/setting/friends_page.dart';
 import 'package:senior_project/pages/setting/friends_provider.dart';
@@ -20,6 +22,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await NotificationService().initializeNotifications();
   print('initializing firebase donnnnnnnnnnnneeeeeeee');
   runApp(const MainApp());
 }
@@ -56,6 +59,7 @@ class MainApp extends StatelessWidget {
           '/expense': (context) => ExpensePage(),
           '/setting': (context) => const Setting(),
           '/friends': (context) => FriendsPage(),
+          '/notifications': (context) => const NotificationPage(),
         },
       ),
     );

@@ -1,163 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'package:senior_project/pages/expense/expense_data_provider.dart';
-// import 'package:senior_project/pages/expense/bill_page.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
-
-// class PayerPage extends StatefulWidget {
-//   final List<String> memberIds; // Change to memberIds
-//   PayerPage({required this.memberIds});
-
-//   @override
-//   _PayerPageState createState() => _PayerPageState();
-// }
-
-// class _PayerPageState extends State<PayerPage> {
-//   String? selectedPayer;
-//   double amountPaid = 0.0;
-//   TextEditingController amountController = TextEditingController();
-//   String userName = "Me";
-//   Map<String, bool> memberSelected = {};
-//   Map<String, TextEditingController> amountControllers = {};
-//   Map<String, String> userIdToUsername = {}; // Map to store userId to username
-//   final FirebaseAuth _auth = FirebaseAuth.instance;
-//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _fetchUsernames(); // Fetch usernames based on memberIds
-//   }
-
-//   Future<void> _fetchUsernames() async {
-//     List<String> members = [];
-//     members.add(userName); // Add "Me" option
-
-//     for (String userId in widget.memberIds) {
-//       try {
-//         DocumentSnapshot userSnapshot =
-//             await _firestore.collection('users').doc(userId).get();
-//         if (userSnapshot.exists) {
-//           String username = userSnapshot['username'] ?? 'Unknown User';
-//           members.add(username);
-//           userIdToUsername[username] =
-//               userId; // Store userId to username mapping
-//         } else {
-//           print('User document not found for userId: $userId');
-//           members.add('Unknown User'); // Add a placeholder if user not found
-//         }
-//       } catch (e) {
-//         print('Error fetching user data: $e');
-//         members.add('Error User'); // Add a placeholder if there's an error
-//       }
-//     }
-
-//     // Initialize memberSelected and amountControllers after fetching usernames
-//     setState(() {
-//       for (String member in members) {
-//         memberSelected[member] = false;
-//         amountControllers[member] = TextEditingController();
-//       }
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     List<String> members =
-//         userIdToUsername.keys.toList(); // Get usernames from the map
-//     if (!members.contains(userName)) {
-//       members.insert(0, userName);
-//     }
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Who Paid?')),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           children: [
-//             Text('Select the person who paid:'),
-//             Expanded(
-//               child: ListView.builder(
-//                 itemCount: members.length,
-//                 itemBuilder: (context, index) {
-//                   String member = members[index];
-//                   return ListTile(
-//                     leading: Checkbox(
-//                       value: memberSelected[member],
-//                       onChanged: (bool? value) {
-//                         setState(() {
-//                           memberSelected[member] = value!;
-//                         });
-//                       },
-//                     ),
-//                     title: Text(member),
-//                     trailing: memberSelected[member] == true
-//                         ? SizedBox(
-//                             width: 80,
-//                             child: TextField(
-//                               controller: amountControllers[member],
-//                               decoration: InputDecoration(
-//                                 border: OutlineInputBorder(),
-//                                 contentPadding: EdgeInsets.symmetric(
-//                                     horizontal: 8, vertical: 8),
-//                                 hintText: 'Amount',
-//                                 hintStyle: TextStyle(fontSize: 12),
-//                               ),
-//                               keyboardType: TextInputType.numberWithOptions(
-//                                   decimal: true),
-//                               onChanged: (value) {},
-//                             ),
-//                           )
-//                         : null,
-//                   );
-//                 },
-//               ),
-//             ),
-//             SizedBox(height: 20),
-//             ElevatedButton(
-//               onPressed: () {
-//                 final expenseProvider =
-//                     Provider.of<ExpenseDataProvider>(context, listen: false);
-
-//                 List<Map<String, dynamic>> payersData = [];
-
-//                 for (String member in members) {
-//                   if (memberSelected[member] == true &&
-//                       amountControllers[member]!.text.isNotEmpty) {
-//                     payersData.add({
-//                       'payer': userIdToUsername[member] ??
-//                           member, // Use userId from map or username if not found
-//                       'amountPaid':
-//                           double.tryParse(amountControllers[member]!.text) ??
-//                               0.0,
-//                     });
-//                   }
-//                 }
-
-//                 if (payersData.isNotEmpty) {
-//                   expenseProvider.updatePayersData(payersData);
-//                   Navigator.push(
-//                     context,
-//                     MaterialPageRoute(
-//                       builder: (context) => BillPage(memberNames: members),
-//                     ),
-//                   );
-//                 } else {
-//                   ScaffoldMessenger.of(context).showSnackBar(
-//                     SnackBar(
-//                         content: Text(
-//                             "Please select at least one payer and enter an amount.")),
-//                   );
-//                 }
-//               },
-//               child: Text('Next (For Who)'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -238,11 +78,15 @@ class _PayerPageState extends State<PayerPage> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-          title: Text(
-        'Who Paid?',
-        style: MyTextStyles.heading1,
-      )),
+        title: Text(
+          'Who Paid?',
+          style: MyTextStyles.heading1,
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+        toolbarHeight: MediaQuery.of(context).size.height * 0.07,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -281,7 +125,7 @@ class _PayerPageState extends State<PayerPage> {
                             width: 80,
                             child: TextField(
                               controller: amountControllers[member],
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 contentPadding: EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 8),
@@ -300,24 +144,38 @@ class _PayerPageState extends State<PayerPage> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 173, 218, 255),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 60, vertical: 20),
+              ),
               onPressed: () {
                 final expenseProvider =
                     Provider.of<ExpenseDataProvider>(context, listen: false);
 
                 List<Map<String, dynamic>> payersData = [];
+                double totalEnteredAmount = 0.0;
 
                 for (String member in members) {
                   if (memberSelected[member] == true &&
                       amountControllers[member]!.text.isNotEmpty) {
-                    payersData.add({
-                      'payer': member,
-                      'amountPaid':
-                          double.tryParse(amountControllers[member]!.text) ??
-                              0.0,
-                    });
+                    double amount =
+                        double.tryParse(amountControllers[member]!.text) ?? 0.0;
+                    payersData.add({'payer': member, 'amountPaid': amount});
+                    totalEnteredAmount += amount;
                   }
                 }
-
+                if (totalEnteredAmount != expenseProvider.amount) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                          "The sum of entered amounts must equal the total amount."),
+                    ),
+                  );
+                  return;
+                }
                 if (payersData.isNotEmpty) {
                   expenseProvider.updatePayersData(payersData);
                   Navigator.push(
@@ -335,7 +193,10 @@ class _PayerPageState extends State<PayerPage> {
                   );
                 }
               },
-              child: Text('Next (For Who)'),
+              child: Text(
+                'Next',
+                style: MyTextStyles.mediumBoldBlackText,
+              ),
             ),
           ],
         ),

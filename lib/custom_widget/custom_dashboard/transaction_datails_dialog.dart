@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:senior_project/notification/notifiction_service.dart';
 import 'package:senior_project/style/my_text_style.dart';
 
 class TransactionDetailsDialog extends StatefulWidget {
@@ -26,11 +27,10 @@ class TransactionDetailsDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _TransactionDetailsDialogState createState() =>
-      _TransactionDetailsDialogState();
+  groupId createState() => groupId();
 }
 
-class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
+class groupId extends State<TransactionDetailsDialog> {
   String? relatedGroupId;
   String? type;
   String? relatedUserId;
@@ -57,7 +57,7 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
       if (ledgerDoc.exists && ledgerDoc.data() != null) {
         Map<String, dynamic> data = ledgerDoc.data() as Map<String, dynamic>;
         setState(() {
-          relatedGroupId = data['relatedGroupId'] as String?;
+          relatedGroupId = data['groupId'] as String?;
           type = data['type'] as String?;
           relatedUserId = data['relatedUserId'] as String?;
           amount = data['amount'] as double?;
@@ -137,7 +137,7 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
           .collection('users')
           .doc(relatedUserId)
           .collection('ledger')
-          .where('relatedGroupId', isEqualTo: relatedGroupId)
+          .where('groupId', isEqualTo: relatedGroupId)
           .get();
 
       if (relatedUserLedger.docs.isNotEmpty) {
@@ -150,6 +150,11 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
             .delete();
       }
 
+      NotificationService().addDenyPaymentNotification(
+        currentUserId!,
+        relatedUserId!,
+        relatedGroupId!,
+      );
       Navigator.pop(context); // Close the dialog after denying
     } catch (e) {
       print('Error denying payment: $e');
