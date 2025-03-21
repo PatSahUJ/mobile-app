@@ -142,17 +142,67 @@ class NotificationPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           title: notificationType == 'deletion'
-                              ? Text(
-                                  'Group expense deleted by $creatorUsername')
+                              ? Row(
+                                  children: [
+                                    const Text(
+                                      '🗑️ ',
+                                      style: TextStyle(fontSize: 35),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            'Group expense deleted by $creatorUsername'),
+                                        Text(
+                                          DateFormat('yyyy-MM-dd HH:mm')
+                                              .format(createdAt.toDate()),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )
                               : notificationType == 'deny'
-                                  ? Text(
-                                      '$creatorUsername denied your payment') // Display deny message
-                                  : Text(
-                                      'New group expense by $creatorUsername'),
-                          subtitle: Text(
-                            DateFormat('yyyy-MM-dd HH:mm')
-                                .format(createdAt.toDate()),
-                          ),
+                                  ? Row(
+                                      children: [
+                                        const Text(
+                                          '🚫',
+                                          style: TextStyle(fontSize: 35),
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                                '$creatorUsername denied your payment'),
+                                            Text(
+                                              DateFormat('yyyy-MM-dd HH:mm')
+                                                  .format(createdAt.toDate()),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ) // Display deny message
+                                  : Row(
+                                      children: [
+                                        const Text(
+                                          '💸',
+                                          style: TextStyle(fontSize: 35),
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                                'New group expense by $creatorUsername'),
+                                            Text(
+                                              DateFormat('yyyy-MM-dd HH:mm')
+                                                  .format(createdAt.toDate()),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                           trailing: IconButton(
                             icon: const Icon(
                               Icons.delete,
