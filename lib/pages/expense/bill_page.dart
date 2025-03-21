@@ -68,7 +68,10 @@ class _BillPageState extends State<BillPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('For Who?'),
+        title: Text(
+          'For Who?',
+          style: MyTextStyles.heading1,
+        ),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Padding(
@@ -225,6 +228,8 @@ class _BillPageState extends State<BillPage> {
                     final notificationService = NotificationService();
                     await notificationService.addGroupLedgerNotification(
                         groupId, members);
+
+                    Navigator.pushNamed(context, '/dashboard');
                   } else {
                     print("User not logged in");
                   }

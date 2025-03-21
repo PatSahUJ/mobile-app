@@ -55,11 +55,20 @@ class _AuthPageState extends State<AuthPage> {
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          //user logged in
           if (snapshot.hasData) {
-            print('going to dashboard');
-            return const Dashboard();
+            User? user = snapshot.data;
+            if (user != null && user.emailVerified) {
+              // User is logged in and email is verified
+              print('going to dashboard');
+              return const Dashboard();
+            } else {
+              // User is logged in, but email is not verified
+              print('User logged in, but email not verified. Going to login.');
+              // Optionally show a message to the user here
+              return const Login();
+            }
           } else {
+            // User is not logged in
             print('going to dashboard log in');
             return const Login();
           }
