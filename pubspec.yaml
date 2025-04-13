@@ -18,11 +18,18 @@ dependencies:
   fl_chart: ^0.70.2
   firebase_messaging: ^15.2.4
   flutter_local_notifications: ^18.0.1
+  flutter_launcher_icons: ^0.14.3
   
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+
+flutter_launcher_icons:
+  android: "launcher_icon" # Name of the drawable in Android (e.g., ic_launcher)
+  image_path: "asset/icons/app_icon.png" # Path to your logo file
+  min_sdk_android: 21 # Required for adaptive icons
+  adaptive_icon_background: "#b059d4"
 
 flutter:
   uses-material-design: true
@@ -32,6 +39,7 @@ flutter:
     - asset/icons/loupe.png
     - asset/icons/setting.png
     - asset/images/icon_bar_dash.png
+    - asset/icons/app_icon.png
 
   fonts:
     - family: Inter  # Replace with your font family name
@@ -42,3 +50,4 @@ flutter:
     - family: RobotoMono
       fonts:
         - asset: asset/font/RobotoMono-Regular.ttf
+ 

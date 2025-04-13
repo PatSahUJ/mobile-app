@@ -53,7 +53,7 @@ class SilverBoxDash extends StatelessWidget {
     return SliverAppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
-        expandedHeight: 210,
+        expandedHeight: MediaQuery.of(context).size.height * 0.28,
         flexibleSpace: Stack(
           children: [
             Padding(
@@ -88,7 +88,7 @@ class SilverBoxDash extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               CustomDatePicker(),
-                              Expanded(child: TotInEx()),
+                              TotInEx(),
                             ],
                           ),
                         ),

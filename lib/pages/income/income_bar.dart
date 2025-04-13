@@ -56,8 +56,9 @@ class IncomeBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      automaticallyImplyLeading: false,
       backgroundColor: Colors.white,
-      toolbarHeight: MediaQuery.of(context).size.height * 0.01,
+      toolbarHeight: MediaQuery.of(context).size.height * 0.03,
       flexibleSpace: Stack(
         children: [
           TextButton(

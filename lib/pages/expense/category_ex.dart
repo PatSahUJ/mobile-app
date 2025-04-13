@@ -55,6 +55,43 @@ class _CategoryExState extends State<CategoryEx> {
     }
   }
 
+  void _showDeleteConfirmationDialog(BuildContext context, String categoryId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete Category"),
+          content: Text("Are you sure you want to delete '$categoryId'?"),
+          actions: [
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+              onPressed: () async {
+                User? user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user.uid)
+                      .collection('category')
+                      .doc(categoryId)
+                      .delete();
+
+                  _fetchCategoryEmojis(); // Refresh the category list
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<String> categoryIds = categoryEmojis.keys.toList();
@@ -143,27 +180,24 @@ class _CategoryExState extends State<CategoryEx> {
                         _categoryColors[categoryId] =
                             Theme.of(context).primaryColor;
                       });
-                      // Update provider with selected category
                       Provider.of<ExpenseDataProvider>(context, listen: false)
                           .updateCategory(categoryId);
-                      //print('Category selected: $categoryId');
-                      //print('Provider Category: ${Provider.of<ExpenseDataProvider>(context, listen: false).category}');
+                    },
+                    onLongPress: () {
+                      _showDeleteConfirmationDialog(context, categoryId);
                     },
                     child: Container(
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 3),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 8),
-                        decoration: BoxDecoration(
-                            color: _categoryColors[categoryId],
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Column(
-                          children: [
-                            Text(emoji, style: const TextStyle(fontSize: 30)),
-                            Text(categoryId,
-                                style: MyTextStyles.size12lightText),
-                          ],
-                        ),
+                      margin: const EdgeInsets.only(bottom: 3),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 8),
+                      decoration: BoxDecoration(
+                          color: _categoryColors[categoryId],
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Column(
+                        children: [
+                          Text(emoji, style: const TextStyle(fontSize: 30)),
+                          Text(categoryId, style: MyTextStyles.size12lightText),
+                        ],
                       ),
                     ),
                   );

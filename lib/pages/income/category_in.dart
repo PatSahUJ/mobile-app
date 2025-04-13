@@ -54,6 +54,60 @@ class _CatagoryInState extends State<CatagoryIn> {
     }
   }
 
+  void _showDeleteConfirmationDialog(BuildContext context, String categoryId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Category'),
+          content: const Text('Are you sure you want to delete this category?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteCategory(categoryId);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteCategory(String categoryId) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      // Delete the category from Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('category')
+          .doc(categoryId)
+          .delete();
+
+      // After deletion, refresh the categories
+      _fetchCategoryEmojis();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Category deleted successfully')),
+      );
+    } catch (e) {
+      print('Error deleting category: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to delete category')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isSaveButtonEnabled =
@@ -135,7 +189,6 @@ class _CatagoryInState extends State<CatagoryIn> {
                   String emoji = categoryEmojis[categoryId] ?? '';
 
                   return GestureDetector(
-                    // Wrap with GestureDetector
                     onTap: () {
                       setState(() {
                         _selectedCategoryId = categoryId;
@@ -146,24 +199,22 @@ class _CatagoryInState extends State<CatagoryIn> {
                             Theme.of(context).primaryColor;
                       });
                     },
+                    onLongPress: () {
+                      _showDeleteConfirmationDialog(context, categoryId);
+                    },
                     child: Container(
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 3),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 8),
-                        decoration: BoxDecoration(
-                            // Use decoration here
-                            color: _categoryColors[categoryId],
-                            borderRadius: BorderRadius.circular(
-                                10) // Set color inside decoration
-                            ),
-                        child: Column(
-                          children: [
-                            Text(emoji, style: const TextStyle(fontSize: 30)),
-                            Text(categoryId,
-                                style: MyTextStyles.size14lightText),
-                          ],
-                        ),
+                      margin: const EdgeInsets.only(bottom: 3),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: _categoryColors[categoryId],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(emoji, style: const TextStyle(fontSize: 30)),
+                          Text(categoryId, style: MyTextStyles.size12lightText),
+                        ],
                       ),
                     ),
                   );

@@ -62,7 +62,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
                 labelText: 'Email',
-                hintText: 'Tom@gmail.com',
               ),
             ),
             const SizedBox(height: 20.0),

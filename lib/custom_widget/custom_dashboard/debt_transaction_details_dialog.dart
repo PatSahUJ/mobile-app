@@ -170,12 +170,32 @@ class _DebtTransactionDetailsDialogState
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(' ${debt['payerUsername']}  ─────',
-                              style: MyTextStyles.size16BlackText),
-                          Text('\$${(debt['amount']).toStringAsFixed(2)}',
-                              style: MyTextStyles.size16BlackText),
-                          Text('────>  ${debt['payeeUsername']} ',
-                              style: MyTextStyles.size16BlackText),
+                          Flexible(
+                            flex: 3,
+                            child: Text(
+                              debt['payerUsername'],
+                              overflow: TextOverflow.ellipsis,
+                              style: MyTextStyles.size16BlackText,
+                            ),
+                          ),
+                          Flexible(
+                            flex: 4,
+                            child: Text(
+                              '──────>',
+                              overflow: TextOverflow.clip,
+                              textAlign: TextAlign.center,
+                              style: MyTextStyles.size16BlackText,
+                            ),
+                          ),
+                          Flexible(
+                            flex: 3,
+                            child: Text(
+                              debt['payeeUsername'],
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                              style: MyTextStyles.size16BlackText,
+                            ),
+                          ),
                         ],
                       ),
                     );

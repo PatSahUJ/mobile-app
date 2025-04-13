@@ -14,7 +14,7 @@ class SilverAppBarDefault extends StatelessWidget {
       centerTitle: false,
       stretch: false,
       automaticallyImplyLeading: false,
-      expandedHeight: MediaQuery.of(context).size.width * 0.18,
+      expandedHeight: MediaQuery.of(context).size.width * 0.2,
       flexibleSpace: Stack(
         children: [
           Positioned(
