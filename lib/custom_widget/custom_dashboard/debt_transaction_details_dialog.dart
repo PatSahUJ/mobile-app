@@ -158,47 +158,50 @@ class _DebtTransactionDetailsDialogState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: debtData.map((debt) {
                     return Container(
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      margin: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.height * 0.005),
-                      padding: EdgeInsets.all(
-                          MediaQuery.of(context).size.width * 0.01),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            flex: 3,
-                            child: Text(
-                              debt['payerUsername'],
-                              overflow: TextOverflow.ellipsis,
-                              style: MyTextStyles.size16BlackText,
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        margin: EdgeInsets.symmetric(
+                            vertical:
+                                MediaQuery.of(context).size.height * 0.005),
+                        padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.01),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment
+                              .start, // Align items to the start
+                          children: [
+                            Expanded(
+                              // Allow the payer's name to take available space
+                              flex: 3,
+                              child: Text(
+                                debt['payerUsername'],
+                                overflow: TextOverflow.ellipsis,
+                                style: MyTextStyles.size16BlackText,
+                                textAlign: TextAlign.start,
+                              ),
                             ),
-                          ),
-                          const Flexible(
-                            flex: 4,
-                            child: Text(
-                              '──────>',
+                            SizedBox(width: 8), // Add a small fixed space
+                            Text(
+                              '── ฿${debt['amount'].toStringAsFixed(2)} ──>',
                               overflow: TextOverflow.clip,
                               textAlign: TextAlign.center,
                               style: MyTextStyles.size16BlackText,
                             ),
-                          ),
-                          Flexible(
-                            flex: 3,
-                            child: Text(
-                              debt['payeeUsername'],
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.end,
-                              style: MyTextStyles.size16BlackText,
+                            SizedBox(width: 8), // Add a small fixed space
+                            Expanded(
+                              // Allow the payee's name to take available space
+                              flex: 3,
+                              child: Text(
+                                debt['payeeUsername'],
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.end,
+                                style: MyTextStyles.size16BlackText,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
+                          ],
+                        ));
                   }).toList(),
                 ),
               ],
