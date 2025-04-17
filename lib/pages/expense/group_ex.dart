@@ -18,7 +18,7 @@ class GroupEx extends StatefulWidget {
 class _groupExState extends State<GroupEx> {
   bool _isExpanded = false;
   List<String> _selectedFriendIds = [];
-  Map<String, String> _userIdToUsername = {};
+  final Map<String, String> _userIdToUsername = {};
 
   Future<void> _fetchUsernames(List<String> friendIds) async {
     _userIdToUsername.clear();
@@ -144,7 +144,7 @@ class _groupExState extends State<GroupEx> {
                         });
                       },
                     );
-                  }).toList(),
+                  }),
                   const SizedBox(height: 15),
                 ],
               ),

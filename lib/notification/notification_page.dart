@@ -34,7 +34,7 @@ class NotificationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String _getAmountText(Map<String, dynamic> ledgerDocument, String? userId) {
+    String getAmountText(Map<String, dynamic> ledgerDocument, String? userId) {
       if (ledgerDocument['payer'] != null && userId != null) {
         List<dynamic> payers = ledgerDocument['payer'];
         for (var payer in payers) {
@@ -59,7 +59,7 @@ class NotificationPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Notifications',
           style: MyTextStyles.heading2,
         ),
@@ -108,7 +108,7 @@ class NotificationPage extends StatelessWidget {
                     if (groupSnapshot.connectionState ==
                         ConnectionState.waiting) {
                       return ListTile(
-                        title: Text('Loading group details...'),
+                        title: const Text('Loading group details...'),
                         subtitle: Text(
                           DateFormat('yyyy-MM-dd HH:mm')
                               .format(createdAt.toDate()),
@@ -118,7 +118,7 @@ class NotificationPage extends StatelessWidget {
 
                     if (groupSnapshot.hasError || !groupSnapshot.hasData) {
                       return ListTile(
-                        title: Text('Error loading group details'),
+                        title: const Text('Error loading group details'),
                         subtitle: Text(
                           DateFormat('yyyy-MM-dd HH:mm')
                               .format(createdAt.toDate()),
@@ -236,8 +236,8 @@ class NotificationPage extends StatelessWidget {
                                 builder: (context) =>
                                     GroupTransactionDetailsDialog(
                                   emoji: emoji,
-                                  amount:
-                                      '${_getAmountText(ledgerDocument, currentUser.uid)}',
+                                  amount: getAmountText(
+                                      ledgerDocument, currentUser.uid),
                                   context: context,
                                   ledgerDocument: ledgerDocument,
                                   isGroup: true,
@@ -252,7 +252,7 @@ class NotificationPage extends StatelessWidget {
                             }
                           },
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         )
                       ],

@@ -9,7 +9,7 @@ import 'package:senior_project/style/my_text_style.dart';
 
 class PayerPage extends StatefulWidget {
   final List<String> memberIds;
-  PayerPage({required this.memberIds});
+  const PayerPage({super.key, required this.memberIds});
 
   @override
   _PayerPageState createState() => _PayerPageState();
@@ -70,7 +70,7 @@ class _PayerPageState extends State<PayerPage> {
 
     if (_isLoading) {
       // Show loading indicator while data is being fetched
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
@@ -80,7 +80,7 @@ class _PayerPageState extends State<PayerPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Who Paid?',
           style: MyTextStyles.heading1,
         ),
@@ -91,7 +91,7 @@ class _PayerPageState extends State<PayerPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text(
+            const Text(
               'Select the person who paid:',
               style: MyTextStyles.size18BlackText,
             ),
@@ -132,8 +132,9 @@ class _PayerPageState extends State<PayerPage> {
                                 hintText: 'Amount',
                                 hintStyle: TextStyle(fontSize: 12),
                               ),
-                              keyboardType: TextInputType.numberWithOptions(
-                                  decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
                               onChanged: (value) {},
                             ),
                           )
@@ -142,14 +143,15 @@ class _PayerPageState extends State<PayerPage> {
                 },
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 60, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
               ),
               onPressed: () {
                 final expenseProvider =
@@ -186,14 +188,14 @@ class _PayerPageState extends State<PayerPage> {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text(
                           "Please select at least one payer and enter an amount."),
                     ),
                   );
                 }
               },
-              child: Text(
+              child: const Text(
                 'Next',
                 style: MyTextStyles.mediumBoldBlackText,
               ),

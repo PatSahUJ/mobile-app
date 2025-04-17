@@ -9,11 +9,11 @@ class DebtTransactionDetailsDialog extends StatefulWidget {
   final bool isGroup;
 
   const DebtTransactionDetailsDialog({
-    Key? key,
+    super.key,
     required this.context,
     required this.ledgerDocument,
     required this.isGroup,
-  }) : super(key: key);
+  });
 
   @override
   _DebtTransactionDetailsDialogState createState() =>
@@ -126,7 +126,7 @@ class _DebtTransactionDetailsDialogState
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
             ],
           ),
           Container(
@@ -178,7 +178,7 @@ class _DebtTransactionDetailsDialogState
                               style: MyTextStyles.size16BlackText,
                             ),
                           ),
-                          Flexible(
+                          const Flexible(
                             flex: 4,
                             child: Text(
                               '──────>',

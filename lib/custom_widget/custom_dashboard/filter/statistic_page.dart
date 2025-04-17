@@ -143,7 +143,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     Map<String, String> emojis = {};
     for (var doc in categorySnapshot.docs) {
       final data = doc.data();
-      if (data != null && data.containsKey('emoji')) {
+      if (data.containsKey('emoji')) {
         emojis[doc.id] = data['emoji'] as String;
       }
     }
@@ -184,7 +184,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     String dateString = data['date'] as String;
     String category = data['category'] as String? ?? 'Group Transaction';
 
-    if (payers != null && dateString != null) {
+    if (payers != null) {
       DateTime date = DateFormat('yyyy-MM-dd').parse(dateString);
       if (_selectedYear == null || date.year == _selectedYear) {
         // Add this line
@@ -311,7 +311,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       ),
                       child: const Text('Income'),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 20,
                     ),
                     DropdownButton<int?>(
@@ -328,7 +328,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             value: year,
                             child: Text(year.toString()),
                           );
-                        }).toList(),
+                        }),
                       ],
                       onChanged: (year) {
                         setState(() {
@@ -345,7 +345,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   height: 300,
                   child: PieChart(
                     swapAnimationCurve: Curves.decelerate,
-                    swapAnimationDuration: Duration(milliseconds: 700),
+                    swapAnimationDuration: const Duration(milliseconds: 700),
                     PieChartData(
                       sections: pieChartSections,
                       sectionsSpace: 5,
@@ -396,7 +396,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   children: [
                     Text(
                       '$emoji ',
-                      style: TextStyle(fontSize: 30),
+                      style: const TextStyle(fontSize: 30),
                     ),
                     Text('${entry.key}: '),
                   ],

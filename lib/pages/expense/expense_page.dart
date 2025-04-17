@@ -25,13 +25,13 @@ class _expensePageState extends State<ExpensePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+    return const Scaffold(
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
       body: CustomScrollView(slivers: [
         SilverAppBarDefault(),
         ExpenseBar(),
         SilverExpenseDetail(),
-        const GroupEx()
+        GroupEx()
       ]),
     );
   }

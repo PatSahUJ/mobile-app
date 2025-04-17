@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:senior_project/pages/expense/expense_data_provider.dart';
-import 'package:senior_project/pages/expense/group_ex.dart';
 import 'package:senior_project/style/my_text_style.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

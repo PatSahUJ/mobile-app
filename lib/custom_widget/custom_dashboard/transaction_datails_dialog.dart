@@ -15,7 +15,7 @@ class TransactionDetailsDialog extends StatefulWidget {
   final String ledgerId;
 
   const TransactionDetailsDialog({
-    Key? key,
+    super.key,
     required this.emoji,
     required this.itemName,
     required this.amount,
@@ -24,7 +24,7 @@ class TransactionDetailsDialog extends StatefulWidget {
     required this.comment,
     required this.context,
     required this.ledgerId,
-  }) : super(key: key);
+  });
 
   @override
   groupId createState() => groupId();
@@ -100,7 +100,9 @@ class groupId extends State<TransactionDetailsDialog> {
       if (user == null ||
           relatedGroupId == null ||
           relatedUserId == null ||
-          amount == null) return;
+          amount == null) {
+        return;
+      }
 
       // 1. Add transaction to group ledger (query and update)
       QuerySnapshot groupLedgerQuery = await FirebaseFirestore.instance
@@ -277,7 +279,7 @@ class groupId extends State<TransactionDetailsDialog> {
           ),
           if (relatedGroupId != null && type != 'expense')
             Padding(
-              padding: EdgeInsets.only(top: 16.0),
+              padding: const EdgeInsets.only(top: 16.0),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor),

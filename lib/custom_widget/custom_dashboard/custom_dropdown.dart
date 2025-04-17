@@ -247,7 +247,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    String _getAmountText(Map<String, dynamic> ledgerDocument, String? userId) {
+    String getAmountText(Map<String, dynamic> ledgerDocument, String? userId) {
       if (ledgerDocument['payer'] != null && userId != null) {
         List<dynamic> payers = ledgerDocument['payer'];
         for (var payer in payers) {
@@ -364,8 +364,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                _getAmountText(
-                                    ledgerDocument, currentUser?.uid),
+                                getAmountText(ledgerDocument, currentUser?.uid),
                                 style: ledgerDocument['type'] == 'expense'
                                     ? MyTextStyles.size20RedText
                                     : MyTextStyles.size20GreenText,
@@ -386,7 +385,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
                               emoji:
                                   categoryEmojis[ledgerDocument['category']] ??
                                       '',
-                              amount: _getAmountText(
+                              amount: getAmountText(
                                   ledgerDocument, currentUser?.uid),
                               context: context,
                               ledgerDocument:
@@ -405,7 +404,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
                                       '',
                               itemName: ledgerDocument['category'],
                               ledgerId: ledgerSnapshot.id,
-                              amount: _getAmountText(
+                              amount: getAmountText(
                                   ledgerDocument, currentUser?.uid),
                               date: ledgerDocument['date'],
                               member: 'Me',

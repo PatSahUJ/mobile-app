@@ -1,16 +1,3 @@
-// import 'package:firebase_messaging/firebase_messaging.dart';
-
-// class NotificationService {
-//   final _firebaseMessagnig = FirebaseMessaging.instance;
-
-//   Future<void> initNotifications() async {
-//     //request permission from user
-//     await _firebaseMessagnig.requestPermission();
-//     final FCMToken = await _firebaseMessagnig.getToken();
-
-//     print('Token: $FCMToken');
-//   }
-// }
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -21,31 +8,42 @@ class NotificationService {
 
   Future<void> initializeNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings(
-            '@mipmap/ic_launcher'); // Replace with your icon
+        AndroidInitializationSettings('ic_notification');
 
-    final InitializationSettings initializationSettings =
+    const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    // ✅ Register the channel (required for Android 8+)
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'group_ledger_channel',
+      'Group Ledger Notifications',
+      description: 'Notifications for new group ledger entries',
+      importance: Importance.max,
+    );
+
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
   }
 
   Future<void> showNotification(String title, String body) async {
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
-      'group_ledger_channel',
-      'Group Ledger Notifications',
-      channelDescription: 'Notifications for new group ledger entries',
-      importance: Importance.max,
-      priority: Priority.high,
-      ticker: 'ticker',
-    );
+            'group_ledger_channel', 'Group Ledger Notifications',
+            channelDescription: 'Notifications for new group ledger entries',
+            importance: Importance.max,
+            priority: Priority.high,
+            ticker: 'ticker',
+            icon: 'ic_notification');
 
     const NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
 
     await flutterLocalNotificationsPlugin.show(
-      0, // Notification ID (unique)
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
       notificationDetails,

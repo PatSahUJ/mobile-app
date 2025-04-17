@@ -16,7 +16,8 @@ class PaybackDialog extends StatefulWidget {
   final String groupId;
   final String ledgerId;
 
-  PaybackDialog({
+  const PaybackDialog({
+    super.key,
     required this.payerId,
     required this.payeeId,
     required this.payerUsername,
@@ -131,7 +132,7 @@ class _PaybackDialogState extends State<PaybackDialog> {
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Color.fromRGBO(
                     Theme.of(context).primaryColor.red,
@@ -149,7 +150,7 @@ class _PaybackDialogState extends State<PaybackDialog> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${widget.category}',
+                          widget.category,
                           style: MyTextStyles.mediumBlackText,
                         ),
                         Text(
@@ -198,11 +199,11 @@ class _PaybackDialogState extends State<PaybackDialog> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor),
+            onPressed: _handlePayback,
             child: const Text(
               'Pay Back',
               style: MyTextStyles.mediumBoldBlackText,
             ),
-            onPressed: _handlePayback,
           ),
       ],
     );

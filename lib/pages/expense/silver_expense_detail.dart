@@ -81,7 +81,7 @@ class _SilverExpenseDetailState extends State<SilverExpenseDetail> {
               ],
             ),
           ),
-          CategoryEx(),
+          const CategoryEx(),
         ],
       ),
     );

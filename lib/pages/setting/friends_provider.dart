@@ -55,7 +55,7 @@ class FriendsProvider with ChangeNotifier {
       fetchFriends(); // Refresh the friend list
     } catch (e) {
       print('Error adding friend: $e');
-      throw e; // Re-throw the error to be handled in the UI
+      rethrow; // Re-throw the error to be handled in the UI
     }
   }
 
@@ -79,7 +79,7 @@ class FriendsProvider with ChangeNotifier {
       fetchFriends(); // Refresh the friend list
     } catch (e) {
       print('Error deleting friend: $e');
-      throw e; // Re-throw the error to be handled in the UI
+      rethrow; // Re-throw the error to be handled in the UI
     }
   }
 }

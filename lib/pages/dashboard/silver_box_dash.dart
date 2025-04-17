@@ -41,7 +41,6 @@
 //   }
 //}
 import 'package:flutter/material.dart';
-import 'package:senior_project/custom_widget/custom_dashboard/date_time_picker.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/filter/custom_date_picker.dart';
 import 'package:senior_project/custom_widget/custom_dashboard/tot_in_ex.dart';
 
@@ -53,7 +52,7 @@ class SilverBoxDash extends StatelessWidget {
     return SliverAppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
-        expandedHeight: MediaQuery.of(context).size.height * 0.28,
+        expandedHeight: MediaQuery.of(context).size.height * 0.29,
         flexibleSpace: Stack(
           children: [
             Padding(

@@ -246,7 +246,7 @@ class _SettingState extends State<Setting> {
                       const SizedBox(height: 3),
                       Container(
                         width: MediaQuery.of(context).size.width * 0.8,
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(25),
                             color: const Color.fromARGB(255, 232, 232, 232)),

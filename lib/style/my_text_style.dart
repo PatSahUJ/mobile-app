@@ -28,7 +28,7 @@ class MyTextStyles {
   static const TextStyle priColorLightText = TextStyle(
     fontFamily: 'Inter',
     fontSize: 17,
-    color: const Color(0xffFFC145),
+    color: Color(0xffFFC145),
     fontWeight: FontWeight.w300,
   );
   static const TextStyle size12lightText = TextStyle(

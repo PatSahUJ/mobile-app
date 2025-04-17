@@ -14,14 +14,14 @@ class GroupTransactionDetailsDialog extends StatefulWidget {
   final bool deleteable;
 
   const GroupTransactionDetailsDialog({
-    Key? key,
+    super.key,
     required this.emoji,
     required this.amount,
     required this.context,
     required this.ledgerDocument,
     required this.isGroup,
     required this.deleteable,
-  }) : super(key: key);
+  });
 
   @override
   _GroupTransactionDetailsDialogState createState() =>
@@ -219,7 +219,7 @@ class _GroupTransactionDetailsDialogState
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Visibility(
                 visible: widget.deleteable,
                 child: Container(
@@ -228,7 +228,7 @@ class _GroupTransactionDetailsDialogState
                     onPressed: () {
                       deleteTransaction();
                     },
-                    child: Text(
+                    child: const Text(
                       '🗑️',
                       style: TextStyle(fontSize: 20),
                     ),
@@ -320,7 +320,7 @@ class _GroupTransactionDetailsDialogState
                 Row(
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.height * 0.02),
-                    Text(
+                    const Text(
                       'Paid By',
                       style: MyTextStyles.mediumBlackText,
                     ),
@@ -347,9 +347,9 @@ class _GroupTransactionDetailsDialogState
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(username, style: TextStyle(fontSize: 16)),
+                          Text(username, style: const TextStyle(fontSize: 16)),
                           Text('\$${amountPaid.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 16)),
+                              style: const TextStyle(fontSize: 16)),
                         ],
                       ),
                     );
@@ -385,9 +385,9 @@ class _GroupTransactionDetailsDialogState
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(username, style: TextStyle(fontSize: 16)),
+                          Text(username, style: const TextStyle(fontSize: 16)),
                           Text('\$${amount.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 16)),
+                              style: const TextStyle(fontSize: 16)),
                         ],
                       ),
                     );
@@ -401,7 +401,7 @@ class _GroupTransactionDetailsDialogState
             children: [
               Container(
                 width: MediaQuery.of(context).size.width * 0.35,
-                padding: EdgeInsets.all(5),
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor,
                   borderRadius: BorderRadius.circular(20),

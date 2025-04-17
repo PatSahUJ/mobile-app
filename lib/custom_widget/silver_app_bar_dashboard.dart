@@ -87,7 +87,7 @@ class _SilverAppBarDashboardState extends State<SilverAppBarDashboard> {
                     onPressed: () {
                       Navigator.pushNamed(context, '/notifications');
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.notifications,
                       size: 35,
                     )),

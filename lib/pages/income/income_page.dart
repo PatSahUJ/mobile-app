@@ -15,12 +15,12 @@ class IncomePage extends StatefulWidget {
 class _incomePageState extends State<IncomePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+    return const Scaffold(
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
         body: CustomScrollView(slivers: [
           SilverAppBarDefault(),
-          const IncomeBar(),
-          const SilverIncomeDetail()
+          IncomeBar(),
+          SilverIncomeDetail()
         ]));
   }
 }

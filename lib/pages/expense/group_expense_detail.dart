@@ -26,7 +26,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
   @override
   void initState() {
     super.initState();
-    whoPaidButtonColor = Color.fromARGB(255, 225, 156, 139);
+    whoPaidButtonColor = const Color.fromARGB(255, 225, 156, 139);
     forWhoButtonColor = const Color.fromARGB(255, 213, 213, 213);
     _whoPaidCheckedValues = List<bool>.filled(widget.memberNames.length, false);
     _forWhoCheckedValues = List<bool>.filled(widget.memberNames.length, false);
@@ -46,7 +46,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
     setState(() {});
     if (state == 'who') {
       forWhoButtonColor = const Color.fromARGB(255, 213, 213, 213);
-      whoPaidButtonColor = Color.fromARGB(255, 225, 156, 139);
+      whoPaidButtonColor = const Color.fromARGB(255, 225, 156, 139);
     } else {
       whoPaidButtonColor = const Color.fromARGB(255, 213, 213, 213);
       forWhoButtonColor = const Color.fromARGB(255, 225, 156, 139);
@@ -60,11 +60,11 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
         children: [
           CustomScrollView(
             slivers: [
-              SilverAppBarDefault(),
-              ExpenseBar(),
+              const SilverAppBarDefault(),
+              const ExpenseBar(),
               SliverToBoxAdapter(
                 child: Container(
-                  padding: EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 10),
                   color: Colors.white,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -77,7 +77,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                           child: Container(
                             width: 165,
                             alignment: Alignment.center,
-                            padding: EdgeInsets.symmetric(vertical: 7),
+                            padding: const EdgeInsets.symmetric(vertical: 7),
                             decoration: BoxDecoration(
                                 color: whoPaidButtonColor,
                                 borderRadius: BorderRadius.circular(20),
@@ -89,18 +89,18 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                                     offset: Offset(0, 4),
                                   )
                                 ]),
-                            child: Text(
+                            child: const Text(
                               "Who Paid?",
                               style: MyTextStyles.size18BlackText,
                             ),
                           )),
-                      SizedBox(
+                      const SizedBox(
                         width: 10,
                       ),
                       Container(
                         width: 165,
                         alignment: Alignment.center,
-                        padding: EdgeInsets.symmetric(vertical: 7),
+                        padding: const EdgeInsets.symmetric(vertical: 7),
                         decoration: BoxDecoration(
                             color: forWhoButtonColor,
                             borderRadius: BorderRadius.circular(20),
@@ -135,7 +135,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Container(
-                              padding: EdgeInsets.only(left: 20, top: 20),
+                              padding: const EdgeInsets.only(left: 20, top: 20),
                               width: 120,
                               child: TextField(
                                 onSubmitted: (text) {
@@ -182,7 +182,8 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                             }
 
                             return Container(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 child: Column(
                                   children: [
                                     Row(
@@ -190,20 +191,19 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                                         Transform.scale(
                                           scale: 1.5,
                                           child: Checkbox(
-                                            fillColor: MaterialStateProperty
+                                            fillColor: WidgetStateProperty
                                                 .resolveWith<Color>(
-                                                    (Set<MaterialState>
-                                                        states) {
+                                                    (Set<WidgetState> states) {
                                               if (states.contains(
-                                                  MaterialState.selected)) {
+                                                  WidgetState.selected)) {
                                                 return Colors
                                                     .white; // The inside of the checkbox when selected
                                               }
                                               return Colors
                                                   .white; // The inside of the checkbox when not selected
                                             }),
-                                            side: BorderSide(
-                                              color: const Color(
+                                            side: const BorderSide(
+                                              color: Color(
                                                   0xffCD5334), // The border color
                                               width: 2.0, // Border thickness
                                             ),
@@ -257,12 +257,12 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                                                   personButton = index;
                                                 });
                                               },
-                                              child: Text(
+                                              child: const Text(
                                                 '🖊️',
                                                 style: TextStyle(fontSize: 18),
                                               ))
                                         else
-                                          SizedBox(
+                                          const SizedBox(
                                             width: 65,
                                           ),
                                       ],
@@ -279,7 +279,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   width: 200,
-                  margin: EdgeInsets.only(bottom: 20),
+                  margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
                       color: const Color(0xffCD5334),
                       borderRadius: BorderRadius.circular(15)),
@@ -290,7 +290,7 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                         change_button_color();
                       });
                     },
-                    child: Text(
+                    child: const Text(
                       'Next',
                       style: MyTextStyles.mediumWhiteText,
                     ),
@@ -301,13 +301,13 @@ class _groupExpenseDetailState extends State<GroupExpenseDetail> {
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   width: 200,
-                  margin: EdgeInsets.only(bottom: 20),
+                  margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(15)),
                   child: TextButton(
                     onPressed: () {},
-                    child: Text(
+                    child: const Text(
                       'Save',
                       style: MyTextStyles.mediumBlackText,
                     ),

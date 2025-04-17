@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'friends_provider.dart'; // Import your FriendsProvider
 
 class FriendsPage extends StatefulWidget {
+  const FriendsPage({super.key});
+
   @override
   _FriendsPageState createState() => _FriendsPageState();
 }
@@ -25,7 +27,7 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Friends'),
+        title: const Text('Friends'),
         backgroundColor: Theme.of(context).primaryColor,
         toolbarHeight: MediaQuery.of(context).size.height * 0.07,
       ),
@@ -36,9 +38,9 @@ class _FriendsPageState extends State<FriendsPage> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Friend\'s Email'),
+              decoration: const InputDecoration(labelText: 'Friend\'s Email'),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             ElevatedButton(
@@ -52,7 +54,7 @@ class _FriendsPageState extends State<FriendsPage> {
                       .addFriend(_emailController.text.trim());
                   _emailController.clear();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Friend added successfully!')),
+                    const SnackBar(content: Text('Friend added successfully!')),
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -60,14 +62,15 @@ class _FriendsPageState extends State<FriendsPage> {
                   );
                 }
               },
-              child: Text('Add Friend'),
+              child: const Text('Add Friend'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: Consumer<FriendsProvider>(
                 builder: (context, friendsProvider, child) {
                   if (friendsProvider.friends.isEmpty) {
-                    return Center(child: Text('You have no friends yet.'));
+                    return const Center(
+                        child: Text('You have no friends yet.'));
                   }
 
                   return ListView.builder(
@@ -89,20 +92,20 @@ class _FriendsPageState extends State<FriendsPage> {
                             return ListTile(
                               title: Text(friendName),
                               trailing: IconButton(
-                                icon: Icon(Icons.delete),
+                                icon: const Icon(Icons.delete),
                                 onPressed: () async {
                                   try {
                                     await Provider.of<FriendsProvider>(context,
                                             listen: false)
                                         .deleteFriend(friendDoc.id);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                           content: Text(
                                               'Friend deleted successfully!')),
                                     );
                                   } catch (e) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                           content: Text(
                                               'Failed to delete friend. Please try again.')),
                                     );
@@ -111,7 +114,7 @@ class _FriendsPageState extends State<FriendsPage> {
                               ),
                             );
                           } else {
-                            return ListTile(
+                            return const ListTile(
                               title: Text('Loading friend...'),
                             );
                           }

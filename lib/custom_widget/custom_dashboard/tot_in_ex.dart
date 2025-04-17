@@ -271,7 +271,8 @@ class _TotInExState extends State<TotInEx> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => DebtPage()),
+                            MaterialPageRoute(
+                                builder: (context) => const DebtPage()),
                           );
                         },
                         child: const Text(

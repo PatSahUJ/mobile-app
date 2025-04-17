@@ -11,7 +11,7 @@ import 'package:uuid/uuid.dart';
 
 class BillPage extends StatefulWidget {
   final List<String> memberNames;
-  BillPage({required this.memberNames});
+  const BillPage({super.key, required this.memberNames});
 
   @override
   _BillPageState createState() => _BillPageState();
@@ -59,7 +59,7 @@ class _BillPageState extends State<BillPage> {
     List<String> members = List.from(widget.memberNames);
     String myUserId = FirebaseAuth.instance.currentUser?.uid ?? "Me";
     if (_isLoading) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
@@ -68,7 +68,7 @@ class _BillPageState extends State<BillPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'For Who?',
           style: MyTextStyles.heading1,
         ),
@@ -78,7 +78,7 @@ class _BillPageState extends State<BillPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text('Enter bill amount for each person:'),
+            const Text('Enter bill amount for each person:'),
             Consumer<ExpenseDataProvider>(
               builder: (context, expenseProvider, child) {
                 return Text(
@@ -101,15 +101,15 @@ class _BillPageState extends State<BillPage> {
                       width: 80,
                       child: TextField(
                         controller: amountControllers[member],
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           contentPadding:
                               EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                           hintText: 'Amount',
                           hintStyle: TextStyle(fontSize: 12),
                         ),
-                        keyboardType:
-                            TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
                         onChanged: (value) {},
                       ),
                     ),
@@ -117,14 +117,15 @@ class _BillPageState extends State<BillPage> {
                 },
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 60, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
               ),
               onPressed: () async {
                 final expenseProvider =
@@ -178,7 +179,7 @@ class _BillPageState extends State<BillPage> {
 
                   User? user = FirebaseAuth.instance.currentUser;
                   if (user != null) {
-                    final groupId = Uuid().v4();
+                    final groupId = const Uuid().v4();
 
                     await FirebaseFirestore.instance
                         .collection('groups')
@@ -235,14 +236,14 @@ class _BillPageState extends State<BillPage> {
                   }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content:
                           Text("Please fill in the amount for every member."),
                     ),
                   );
                 }
               },
-              child: Text(
+              child: const Text(
                 'Save',
                 style: MyTextStyles.mediumBoldBlackText,
               ),

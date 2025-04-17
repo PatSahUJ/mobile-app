@@ -363,7 +363,7 @@ class _DebtPageState extends State<DebtPage> {
                         );
                       }).toList(),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),

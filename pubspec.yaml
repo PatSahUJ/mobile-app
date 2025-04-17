@@ -28,8 +28,6 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon" # Name of the drawable in Android (e.g., ic_launcher)
   image_path: "asset/icons/app_icon.png" # Path to your logo file
-  min_sdk_android: 21 # Required for adaptive icons
-  adaptive_icon_background: "#b059d4"
 
 flutter:
   uses-material-design: true

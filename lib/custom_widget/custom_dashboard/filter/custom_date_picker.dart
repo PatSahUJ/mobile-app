@@ -100,7 +100,7 @@ class CustomDatePicker extends StatelessWidget {
     final weeklyStartDate = filterProvider.weeklyStartDate;
     final weeklyEndDate = filterProvider.weeklyEndDate;
 
-    void _previous() {
+    void previous() {
       if (currentFilterType == FilterType.monthly) {
         if (selectedMonth == 1) {
           filterProvider.setMonthYear(selectedYear - 1, 12);
@@ -114,7 +114,7 @@ class CustomDatePicker extends StatelessWidget {
       }
     }
 
-    void _next() {
+    void next() {
       if (currentFilterType == FilterType.monthly) {
         if (selectedMonth == 12) {
           filterProvider.setMonthYear(selectedYear + 1, 1);
@@ -128,7 +128,7 @@ class CustomDatePicker extends StatelessWidget {
       }
     }
 
-    String _formatWeeklyRange() {
+    String formatWeeklyRange() {
       if (weeklyStartDate != null && weeklyEndDate != null) {
         String startDate = DateFormat('dd/MM/yy').format(weeklyStartDate);
         String endDate = DateFormat('dd/MM/yy').format(weeklyEndDate);
@@ -144,7 +144,7 @@ class CustomDatePicker extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.chevron_left),
-              onPressed: _previous,
+              onPressed: previous,
             ),
             Text(
               currentFilterType == FilterType.monthly
@@ -152,7 +152,7 @@ class CustomDatePicker extends StatelessWidget {
                   : currentFilterType == FilterType.yearly
                       ? '$selectedYear'
                       : currentFilterType == FilterType.weekly
-                          ? _formatWeeklyRange()
+                          ? formatWeeklyRange()
                           : currentFilterType == FilterType.all
                               ? 'All'
                               : '',
@@ -160,7 +160,7 @@ class CustomDatePicker extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.chevron_right),
-              onPressed: _next,
+              onPressed: next,
             ),
           ],
         ),
@@ -170,10 +170,11 @@ class CustomDatePicker extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => StatisticsPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const StatisticsPage()),
                   );
                 },
-                icon: Icon(Icons.stacked_bar_chart))
+                icon: const Icon(Icons.stacked_bar_chart))
           ],
         )
       ],

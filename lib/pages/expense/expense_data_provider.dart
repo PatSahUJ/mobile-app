@@ -11,7 +11,9 @@ class ExpenseDataProvider with ChangeNotifier {
   String _type = 'expense';
   List<String> _members = [];
 
-  List<TextEditingController> _memberControllers = [TextEditingController()];
+  final List<TextEditingController> _memberControllers = [
+    TextEditingController()
+  ];
 
   List<Map<String, dynamic>> _payersData = [];
   List<Map<String, dynamic>> _billsAmounts = [];
@@ -47,7 +49,7 @@ class ExpenseDataProvider with ChangeNotifier {
   }
 
   List<String> get members {
-    print("Provider instance hashCode: ${this.hashCode}");
+    print("Provider instance hashCode: ${hashCode}");
 
     print('Getting members: $_members');
     return List.unmodifiable(_members);
@@ -100,7 +102,7 @@ class ExpenseDataProvider with ChangeNotifier {
   void updateMembers(List<String> members) {
     _members = members;
     notifyListeners();
-    print("Provider instance hashCode: ${this.hashCode}");
+    print("Provider instance hashCode: ${hashCode}");
 
     print('Members updated to: $_members');
   }
@@ -109,7 +111,7 @@ class ExpenseDataProvider with ChangeNotifier {
     _memberControllers.add(TextEditingController());
     _members.add(''); // Add an empty string to keep both lists in sync
     notifyListeners();
-    print('Added member controller. Total: ${_memberControllers}');
+    print('Added member controller. Total: $_memberControllers');
   }
 
   void clearMemberControllers() {
@@ -171,7 +173,7 @@ class ExpenseDataProvider with ChangeNotifier {
     }
   }
 
-  TextEditingController _commentController = TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
 
   TextEditingController get commentController => _commentController;
 
