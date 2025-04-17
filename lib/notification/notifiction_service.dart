@@ -160,4 +160,41 @@ class NotificationService {
       print("Error adding deny payment notification for $receiverUserId: $e");
     }
   }
+
+  Future<void> addPaybackNotification(
+    String payerUserId,
+    String receiverUserId,
+    String groupId,
+    double amount,
+  ) async {
+    // Fetch payer's username
+    final payerSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(payerUserId)
+        .get();
+    final payerUsername = payerSnapshot.exists
+        ? payerSnapshot['username'] as String? ?? 'Unknown User'
+        : 'Unknown User';
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(receiverUserId)
+          .collection('notifications')
+          .add({
+        'groupId': groupId,
+        'createdAt': FieldValue.serverTimestamp(),
+        'creatorUsername': payerUsername, // Store payer username
+        'type': 'payback', // Add type for payback notifications
+        'amount': amount, // Optionally include the amount
+      });
+
+      await showNotification(
+        'Debt Paid Back',
+        '$payerUsername paid you back ${amount.toStringAsFixed(2)}.',
+      );
+    } catch (e) {
+      print("Error adding payback notification for $receiverUserId: $e");
+    }
+  }
 }

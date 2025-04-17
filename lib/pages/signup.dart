@@ -240,9 +240,9 @@ class _SignupState extends State<Signup> {
           'email': email,
           'username': displayName.isNotEmpty ? displayName : email,
           'creationDate': DateTime.now(),
-          'total': 0,
-          'totalExpense': 0,
-          'totalIncome': 0,
+          // 'total': 0,
+          // 'totalExpense': 0,
+          // 'totalIncome': 0,
           'isVerified': false, // Add isVerified field, set to false
         });
 

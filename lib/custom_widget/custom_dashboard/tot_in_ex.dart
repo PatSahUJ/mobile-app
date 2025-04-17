@@ -77,7 +77,7 @@ class _TotInExState extends State<TotInEx> {
           }
         }
       }
-
+//group ledger calculation
       QuerySnapshot groupSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
