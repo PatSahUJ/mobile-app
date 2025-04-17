@@ -183,26 +183,49 @@ class NotificationPage extends StatelessWidget {
                                         ),
                                       ],
                                     ) // Display deny message
-                                  : Row(
-                                      children: [
-                                        const Text(
-                                          '💸',
-                                          style: TextStyle(fontSize: 35),
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                  : notificationType == 'payback'
+                                      ? Row(
                                           children: [
-                                            Text(
-                                                'New group expense by $creatorUsername'),
-                                            Text(
-                                              DateFormat('yyyy-MM-dd HH:mm')
-                                                  .format(createdAt.toDate()),
+                                            const Text(
+                                              '✅',
+                                              style: TextStyle(fontSize: 35),
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                    '$creatorUsername Payback to you'),
+                                                Text(
+                                                  DateFormat('yyyy-MM-dd HH:mm')
+                                                      .format(
+                                                          createdAt.toDate()),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ) // Display deny message
+                                      : Row(
+                                          children: [
+                                            const Text(
+                                              '💸',
+                                              style: TextStyle(fontSize: 35),
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                    'New group expense by $creatorUsername'),
+                                                Text(
+                                                  DateFormat('yyyy-MM-dd HH:mm')
+                                                      .format(
+                                                          createdAt.toDate()),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
                           trailing: IconButton(
                             icon: const Icon(
                               Icons.delete,
