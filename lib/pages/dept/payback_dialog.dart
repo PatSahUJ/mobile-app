@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:senior_project/notification/notifiction_service.dart';
 import 'package:senior_project/style/my_text_style.dart';
 import 'package:intl/intl.dart';
 
@@ -36,6 +37,8 @@ class PaybackDialog extends StatefulWidget {
 
 class _PaybackDialogState extends State<PaybackDialog> {
   bool _isLoading = false;
+  final NotificationService _notificationService =
+      NotificationService(); // Instantiate NotificationService
 
   Future<void> _handlePayback() async {
     setState(() {
@@ -80,6 +83,13 @@ class _PaybackDialogState extends State<PaybackDialog> {
       });
 
       await _deleteTransaction();
+
+      await _notificationService.addPaybackNotification(
+        widget.payerId,
+        widget.payeeId,
+        widget.groupId,
+        widget.amount,
+      );
 
       Navigator.of(context).pop(true);
     } catch (e) {
